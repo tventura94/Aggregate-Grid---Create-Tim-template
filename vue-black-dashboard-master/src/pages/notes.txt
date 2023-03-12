@@ -1,0 +1,19 @@
+Making the drag move fluidly.
+
+adding a filter to the table
+
+
+how to change scroll boxes to not look so ugly
+
+change header bottom borders to something less ugly
+
+make sure countires display flag 
+
+bought should display x or check mark
+
+rating should display stars
+
+
+
+
+[System.Environment]::SetEnvironmentVariable('NODE_OPTIONS','--openssl-legacy-provider')
