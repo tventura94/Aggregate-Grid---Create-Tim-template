@@ -9,6 +9,7 @@
             :options="{ handle: '.handle' }"
             :style="{ width: `${tableWidth}px` }"
             @end="updateUpperTableHeaders"
+            @change="updateTableHeaders"
           >
             <th
               class="handle"
@@ -21,12 +22,7 @@
           </draggable>
         </tr>
         <tr>
-          <draggable
-            v-model="tableHeaders"
-            :options="{
-              handle: '.handle',
-            }"
-          >
+          <draggable v-model="tableHeaders" :options="{ handle: '.handle' }">
             <th
               class="handle"
               v-for="header in tableHeaders"
@@ -70,13 +66,13 @@ export default {
   data() {
     return {
       tableWidth: window.innerWidth,
+
       upperTableHeaders: [
         ["Participants", 15],
         ["Game of Choice", 10],
         ["Performance", 15],
         ["Budget", 60],
       ],
-
       tableHeaders: [
         "Names",
         "Language",
@@ -99,6 +95,25 @@ export default {
         "Nov",
         "Dec",
       ],
+      tableHeaderMap: {
+        Participants: ["Names", "Language", "Country"],
+        "Game of Choice": ["Game", "Bought"],
+        Performance: ["Balance", "Rating", "Winnings"],
+        Budget: [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ],
+      },
       tableData: [
         {
           id: 1,
@@ -129,7 +144,7 @@ export default {
           language: "English",
           country: "Ireland",
           game: "Chess",
-          bought: true,
+          bought: "true",
           balance: "$2,000",
           rating: "5",
           winnings: "$7,000",
@@ -479,6 +494,18 @@ export default {
       this.upperColumnWidths = this.upperTableHeaders.map(
         (header) => header[1]
       );
+    },
+    updateTableHeaders() {
+      const newOrder = this.upperTableHeaders
+        .map((header) => {
+          if (header[0] in this.tableHeaderMap) {
+            return this.tableHeaderMap[header[0]];
+          } else {
+            return [header[0]];
+          }
+        })
+        .flat();
+      this.tableHeaders = newOrder;
     },
     mounted() {
       window.addEventListener("resize", () => {
