@@ -139,12 +139,35 @@ export default {
           dec: "$61,520",
         },
         {
+          id: 1,
+          names: "Alice Anderson",
+          language: "English",
+          country: "USA",
+          game: "Chess",
+          bought: "true",
+          balance: "$5,000",
+          rating: "1",
+          winnings: "$61,800",
+          jan: "$65,243",
+          feb: "$64,235",
+          mar: "$60,845",
+          apr: "$61,245",
+          may: "$63,542",
+          jun: "$66,452",
+          jul: "$60,124",
+          aug: "$58,142",
+          sep: "$60,312",
+          oct: "$59,842",
+          nov: "$60,125",
+          dec: "$61,520",
+        },
+        {
           id: 2,
           names: "Tony Smith",
           language: "English",
           country: "Ireland",
           game: "Chess",
-          bought: "true",
+          bought: true,
           balance: "$2,000",
           rating: "5",
           winnings: "$7,000",
@@ -552,6 +575,7 @@ export default {
   table-layout: auto;
   padding: 7.5px;
   width: 100vw;
+  border: 1px red solid;
 }
 .custom-table th {
   height: 75px;
@@ -565,6 +589,10 @@ export default {
   padding-bottom: 1rem;
   width: 5%;
   border-bottom: #39304e 1px solid;
+  overflow: hidden;
+  padding-left: 0.1rem;
+  padding-right: 0.1rem;
+  height: 7.5vh;
 }
 .custom-table .handle:active {
   cursor: grabbing;
@@ -599,12 +627,6 @@ td:hover {
   display: flex;
   width: 100vw;
   margin: 0 auto;
-  table-layout: auto;
-}
-.upperTable-container {
-  margin: 0 auto;
-  overflow-x: auto;
-  width: 100vw;
   table-layout: auto;
 }
 
