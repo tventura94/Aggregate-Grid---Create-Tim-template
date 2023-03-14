@@ -513,19 +513,21 @@ export default {
       });
     },
     onClickHeader(header) {
+      let columnData = this.tableData.map((row) => row[header.toLowerCase()]);
       if (this.sortOrder[header] === "asc") {
         this.sortOrder[header] = "desc";
-        this.tableData.sort((a, b) =>
-          b[header.toLowerCase()].localeCompare(a[header.toLowerCase()])
-        );
+        columnData.sort((a, b) => b.localeCompare(a));
       } else if (this.sortOrder[header] === "desc") {
         this.sortOrder[header] = null;
         this.tableData = this.originalTableData.slice();
+        return;
       } else {
         this.sortOrder[header] = "asc";
-        this.tableData.sort((a, b) =>
-          a[header.toLowerCase()].localeCompare(b[header.toLowerCase()])
-        );
+        columnData.sort((a, b) => a.localeCompare(b));
+      }
+
+      for (let i = 0; i < this.tableData.length; i++) {
+        this.tableData[i][header.toLowerCase()] = columnData[i];
       }
     },
   },
