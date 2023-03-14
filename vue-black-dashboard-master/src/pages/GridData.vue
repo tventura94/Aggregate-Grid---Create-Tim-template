@@ -519,7 +519,7 @@ export default {
         columnData.sort((a, b) => b.localeCompare(a));
       } else if (this.sortOrder[header] === "desc") {
         this.sortOrder[header] = null;
-        this.tableData = this.originalTableData.slice();
+        this.tableData = JSON.parse(JSON.stringify(this.originalTableData)); // Reset the table data to its original state
         return;
       } else {
         this.sortOrder[header] = "asc";
@@ -536,7 +536,7 @@ export default {
   },
   created() {
     // make a copy of the original table data
-    this.originalTableData = [...this.tableData];
+    this.originalTableData = JSON.parse(JSON.stringify(this.tableData));
   },
 };
 </script>
@@ -615,5 +615,6 @@ td:hover {
   z-index: 1;
   opacity: 1;
   background-color: #27293d;
+  width: 100%;
 }
 </style>
