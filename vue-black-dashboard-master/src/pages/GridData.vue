@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="content-container">
-      <div class="card table-responsive">
+      <div class="card card-grid table-responsive">
         <table class="table custom-table">
           <thead class="sticky-headers">
             <tr>
@@ -622,9 +622,35 @@ export default {
 .swapping {
   transition: all 0.3s ease-in-out;
 }
-.card {
+.card-grid {
   height: 85vh;
   width: 68vw;
+}
+table {
+  border-radius: 5%;
+}
+
+.table-responsive {
+  /* Change the scrollbar width and color for Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.4) rgba(255, 255, 255, 0.1);
+}
+
+/* Change the scrollbar width and color for WebKit-based browsers */
+.table-responsive::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background-color: 39304e (255, 255, 255, 0.1);
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 .custom-table td,
@@ -637,7 +663,6 @@ export default {
   padding: 7.5px;
   width: 100vw;
   border-bottom: #39304e 1px solid;
-  border: 1px solid red;
 }
 .table.custom-table th {
   border-bottom: #676176 1px solid;
@@ -664,11 +689,15 @@ export default {
   text-overflow: ellipsis; /* Add this line to indicate truncated text */
 }
 .custom-table .handle:active {
+  position: relative;
+  z-index: 0;
   cursor: grabbing;
 }
 .custom-table .handle:hover {
+  position: relative;
   background-color: #323346;
   color: #ffffff;
+  z-index: 0;
 }
 
 tbody tr:nth-child(2n) {
@@ -738,9 +767,11 @@ td:hover {
     hsl(234deg 17% 25%) 20%,
     hsl(235deg 22% 20%) 100%
   );
+  border-radius: 5px;
 }
 
 .pivot-mode {
+  position: relative;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -750,6 +781,7 @@ td:hover {
   margin: 1rem;
   transition: all 0.3s ease-in-out;
   text-align: center;
+  z-index: 1;
 }
 
 .pivot-mode th:hover {
