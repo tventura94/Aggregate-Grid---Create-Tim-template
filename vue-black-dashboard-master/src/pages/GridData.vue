@@ -6,7 +6,7 @@
           <draggable
             class="upperTable"
             v-model="upperTableHeaders"
-            :options="{ handle: '.handle' }"
+            :options="{ handle: '.handle', ...dragOptions }"
             :style="{ width: `${tableWidth}px` }"
             @end="updateUpperTableHeaders"
             @change="updateTableHeaders"
@@ -22,7 +22,12 @@
           </draggable>
         </tr>
         <tr>
-          <draggable v-model="tableHeaders" :options="{ handle: '.handle' }">
+          <draggable
+            v-model="tableHeaders"
+            :options="{ handle: '.handle' }"
+            @start="drag = true"
+            @end="drag = false"
+          >
             <th
               class="handle"
               v-for="header in tableHeaders"
@@ -36,9 +41,12 @@
                 type="text"
                 @click.stop
               />
-              <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
-              <span v-if="sortOrder[header] === 'desc'">&#x25BC;</span>
-              <span v-if="sortOrder[header] === null"></span>
+              <transition name="fade">
+                <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
+              </transition>
+              <transition name="fade">
+                <span v-if="sortOrder[header] === 'desc'">&#x25BC;</span>
+              </transition>
             </th>
           </draggable>
         </tr>
@@ -48,13 +56,19 @@
         <draggable
           class="data-table"
           v-model="tableData"
-          :options="{ handle: '.handle' }"
+          :options="{ handle: '.handle', ...dragOptions }"
         >
-          <tr class="handle" v-for="item in filteredTableData" :key="item.id">
-            <td class="handle" v-for="header in tableHeaders" :key="header">
-              {{ item[header.toLowerCase()] }}
-            </td>
-          </tr>
+          <transition-group
+            tag="tbody"
+            type="transition"
+            :name="!drag ? 'flip-list' : null"
+          >
+            <tr class="handle" v-for="item in filteredTableData" :key="item.id">
+              <td class="handle" v-for="header in tableHeaders" :key="header">
+                {{ item[header.toLowerCase()] }}
+              </td>
+            </tr>
+          </transition-group>
         </draggable>
       </tbody>
     </table>
@@ -65,8 +79,8 @@ import draggable from "vuedraggable";
 export default {
   data() {
     return {
-      tableWidth: window.innerWidth,
-
+      tableWidth: ["1975"],
+      drag: false,
       upperTableHeaders: [
         ["Participants", 15],
         ["Game of Choice", 10],
@@ -121,9 +135,9 @@ export default {
           language: "English",
           country: "USA",
           game: "Chess",
-          bought: "true",
+          bought: "✔️",
           balance: "$5,000",
-          rating: "1",
+          rating: "★★★",
           winnings: "$61,800",
           jan: "$65,243",
           feb: "$64,235",
@@ -144,9 +158,9 @@ export default {
           language: "English",
           country: "Ireland",
           game: "Chess",
-          bought: true,
+          bought: "✖️",
           balance: "$2,000",
-          rating: "5",
+          rating: "★★★★★",
           winnings: "$7,000",
           jan: "$6,243",
           feb: "$6,235",
@@ -167,9 +181,9 @@ export default {
           language: "English",
           country: "England",
           game: "Checkers",
-          bought: "false",
+          bought: "✖️",
           balance: "$50,000",
-          rating: "5",
+          rating: "★★★★★",
           winnings: "$70,000",
           jan: "$11,542",
           feb: "$11,235",
@@ -190,9 +204,9 @@ export default {
           language: "Spanish",
           country: "Uruguay",
           game: "Rithmomachy",
-          bought: "false",
+          bought: "✖️",
           balance: "$65,500",
-          rating: "5",
+          rating: "★★★★★",
           winnings: "$12,000",
           jan: "$765,243",
           feb: "$764,235",
@@ -213,9 +227,9 @@ export default {
           language: "Portuguese",
           country: "Portugal",
           game: "Game of the Generals",
-          bought: "true",
+          bought: "✔️",
           balance: "$85,310",
-          rating: "2",
+          rating: "★★",
           winnings: "$1,780",
           jan: "$75,243",
           feb: "$74,235",
@@ -236,9 +250,9 @@ export default {
           language: "Spanish",
           country: "Colombia",
           game: "Hare and Hounds",
-          bought: "true",
+          bought: "✔️",
           balance: "$5,001",
-          rating: "0",
+          rating: "★",
           winnings: "$18,000",
           jan: "$3,450",
           feb: "$6,465",
@@ -259,9 +273,9 @@ export default {
           language: "English",
           country: "Ireland",
           game: "Sugoroku",
-          bought: "false",
+          bought: "✖️",
           balance: "$2,000",
-          rating: "3",
+          rating: "★★★",
           winnings: "$500",
           jan: "$45,243",
           feb: "$44,235",
@@ -282,9 +296,9 @@ export default {
           language: "French",
           country: "France",
           game: "Nine Men's Morris",
-          bought: "false",
+          bought: "✖️",
           balance: "$50,000",
-          rating: "5",
+          rating: "★★★★★",
           winnings: "$756,000",
           jan: "$94,520",
           feb: "$94,235",
@@ -305,9 +319,9 @@ export default {
           language: "Maltese",
           country: "Malta",
           game: "Blockade",
-          bought: "true",
+          bought: "✔️",
           balance: "$65,500",
-          rating: "5",
+          rating: "★★★★★",
           winnings: "$2,985",
           jan: "$65,243",
           feb: "$64,235",
@@ -328,9 +342,9 @@ export default {
           language: "French",
           country: "France",
           game: "Patolli",
-          bought: "true",
+          bought: "✔️",
           balance: "$85,609",
-          rating: "5",
+          rating: "★★",
           winnings: "$7,780",
           jan: "$65,243",
           feb: "$64,235",
@@ -351,9 +365,9 @@ export default {
           language: "Italian",
           country: "Italy",
           game: "YINSH",
-          bought: "false",
+          bought: "✖️",
           balance: "$5,020",
-          rating: "1",
+          rating: "★",
           winnings: "$1,000",
           jan: "$65,243",
           feb: "$64,235",
@@ -374,9 +388,9 @@ export default {
           language: "Greek",
           country: "Greece",
           game: "Downfall",
-          bought: true,
+          bought: "✔️",
           balance: "$2,000",
-          rating: "5",
+          rating: "★★★★",
           winnings: "$2,000",
           jan: "$65,243",
           feb: "$64,235",
@@ -397,9 +411,9 @@ export default {
           language: "English",
           country: "Ireland",
           game: "Gipf",
-          bought: "true",
+          bought: "✔️",
           balance: "$50,000",
-          rating: "5",
+          rating: "★★★★",
           winnings: "$7,000",
           jan: "$65,243",
           feb: "$64,235",
@@ -420,9 +434,9 @@ export default {
           language: "English",
           country: "Ireland",
           game: "Shogi",
-          bought: "true",
+          bought: "✔️",
           balance: "$65,500",
-          rating: "5",
+          rating: "★★★",
           winnings: "$19,000",
           jan: "$65,243",
           feb: "$64,235",
@@ -443,9 +457,9 @@ export default {
           language: "Swedish",
           country: "Sweden",
           game: "Mad Gab",
-          bought: "false",
+          bought: "✖️",
           balance: "$85,609",
-          rating: "5",
+          rating: "★★★",
           winnings: "$6,000",
           jan: "$65,243",
           feb: "$64,235",
@@ -467,10 +481,11 @@ export default {
     };
   },
   computed: {
-    columnStyles() {
-      return this.upperColumnWidths.map((width) => {
-        return { width: `${width}%` };
-      });
+    dragOptions() {
+      return {
+        animation: 200,
+        ghostClass: "ghost",
+      };
     },
     filteredTableData() {
       const searchKeys = Object.keys(this.searchQuery);
@@ -519,7 +534,7 @@ export default {
         columnData.sort((a, b) => b.localeCompare(a));
       } else if (this.sortOrder[header] === "desc") {
         this.sortOrder[header] = null;
-        this.tableData = JSON.parse(JSON.stringify(this.originalTableData)); // Reset the table data to its original state
+        this.tableData = JSON.parse(JSON.stringify(this.originalTableData));
         return;
       } else {
         this.sortOrder[header] = "asc";
@@ -542,9 +557,13 @@ export default {
 </script>
 
 <style>
+.swapping {
+  transition: all 0.3s ease-in-out;
+}
 .card {
   height: 85vh;
 }
+
 .custom-table td,
 .custom-table th {
   transition: all 0.3s ease-in-out;
@@ -554,7 +573,13 @@ export default {
   table-layout: auto;
   padding: 7.5px;
   width: 100vw;
-  border: 1px red solid;
+  border-bottom: #39304e 1px solid;
+}
+.table.custom-table th {
+  border-bottom: #676176 1px solid;
+}
+.table.custom-table td {
+  border-top: none;
 }
 .custom-table th {
   height: 75px;
@@ -567,7 +592,6 @@ export default {
   padding-top: 1rem;
   padding-bottom: 1rem;
   width: 5%;
-  border-bottom: #39304e 1px solid;
   overflow: hidden;
   padding-left: 0.1rem;
   padding-right: 0.1rem;
@@ -607,6 +631,7 @@ td:hover {
   width: 100vw;
   margin: 0 auto;
   table-layout: auto;
+  border-bottom: none;
 }
 
 .sticky-headers {
@@ -615,6 +640,22 @@ td:hover {
   z-index: 1;
   opacity: 1;
   background-color: #27293d;
-  width: 100%;
+  background-image: linear-gradient(
+    315deg,
+    hsl(234deg 17% 25%) 0%,
+    hsl(234deg 19% 22%) 35%,
+    hsl(235deg 22% 20%) 100%
+  );
+  width: 100vw;
+  color: #c5d6ce;
+}
+.flip-list-move {
+  transition: transform 0.5s;
+}
+.no-move {
+  transition: transform 0s;
+}
+.ghost {
+  opacity: 0.5;
 }
 </style>
