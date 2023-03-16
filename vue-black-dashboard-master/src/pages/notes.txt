@@ -3,18 +3,20 @@ Making the drag move fluidly.
 adding a filter to the table
 
 
-how to change scroll boxes to not look so ugly
 
-change header bottom borders to something less ugly
-
-make sure countires display flag 
-
-bought should display x or check mark
-
-rating should display stars
+make sure countries display flag (OPTIONAL)
 
 
-how to make it so bar will only scroll within width of card
+PIVOT TABLE:
+get pivot table to remove item on dragging outside of div
+
+
+create pivot toggle switch, should clear rows and enable you to replace them.
+(this will probably suck)
+
+
+
+
 
 
 

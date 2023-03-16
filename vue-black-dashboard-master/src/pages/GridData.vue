@@ -644,7 +644,7 @@ table {
 }
 
 .table-responsive::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.35);
   border-radius: 4px;
 }
 
