@@ -14,6 +14,8 @@ bought should display x or check mark
 rating should display stars
 
 
+how to make it so bar will only scroll within width of card
+
 
 
 [System.Environment]::SetEnvironmentVariable('NODE_OPTIONS','--openssl-legacy-provider')

@@ -63,7 +63,11 @@
             type="transition"
             :name="!drag ? 'flip-list' : null"
           >
-            <tr class="handle" v-for="item in filteredTableData" :key="item.id">
+            <tr
+              class="handle table-row"
+              v-for="item in filteredTableData"
+              :key="item.id"
+            >
               <td class="handle" v-for="header in tableHeaders" :key="header">
                 {{ item[header.toLowerCase()] }}
               </td>
@@ -587,7 +591,6 @@ export default {
   padding-top: 2rem;
   border-left: none;
 }
-
 .custom-table td {
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -595,7 +598,10 @@ export default {
   overflow: hidden;
   padding-left: 0.1rem;
   padding-right: 0.1rem;
-  height: 7.5vh;
+  height: 4.5vh;
+  line-height: 0.5; /* Add this line to adjust line-height */
+  white-space: nowrap; /* Add this line to prevent text wrapping */
+  text-overflow: ellipsis; /* Add this line to indicate truncated text */
 }
 .custom-table .handle:active {
   cursor: grabbing;
@@ -603,6 +609,10 @@ export default {
 .custom-table .handle:hover {
   background-color: #323346;
   color: #ffffff;
+}
+
+tbody tr:nth-child(2n) {
+  background-color: #24263a;
 }
 
 th:hover,
