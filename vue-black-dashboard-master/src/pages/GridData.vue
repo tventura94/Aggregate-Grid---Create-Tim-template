@@ -749,6 +749,7 @@ td:hover {
   border: 1px solid #3c4663;
   margin: 1rem;
   transition: all 0.3s ease-in-out;
+  text-align: center;
 }
 
 .pivot-mode th:hover {
