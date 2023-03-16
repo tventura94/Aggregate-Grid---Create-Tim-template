@@ -1,26 +1,90 @@
 <template>
-  <div class="card table-responsive">
-    <table class="table custom-table">
-      <thead class="sticky-headers">
-        <tr>
-          <draggable
-            class="upperTable"
-            v-model="upperTableHeaders"
-            :options="{ handle: '.handle', ...dragOptions }"
-            :style="{ width: `${tableWidth}px` }"
-            @end="updateUpperTableHeaders"
-            @change="updateTableHeaders"
-          >
-            <th
-              class="handle"
-              v-for="header in upperTableHeaders"
-              :key="header[0]"
-              :style="{ width: `${header[1]}%` }"
+  <div>
+    <div class="content-container">
+      <div class="card table-responsive">
+        <table class="table custom-table">
+          <thead class="sticky-headers">
+            <tr>
+              <draggable
+                class="upperTable"
+                v-model="upperTableHeaders"
+                :options="{ handle: '.handle', ...dragOptions }"
+                :style="{ width: `${tableWidth}px` }"
+                @end="updateUpperTableHeaders"
+                @change="updateTableHeaders"
+              >
+                <th
+                  class="handle"
+                  v-for="header in upperTableHeaders"
+                  :key="header[0]"
+                  :style="{ width: `${header[1]}%` }"
+                >
+                  {{ header[0] }}
+                </th>
+              </draggable>
+            </tr>
+            <tr>
+              <draggable
+                v-model="tableHeaders"
+                :options="{ handle: '.handle' }"
+                @start="drag = true"
+                @end="drag = false"
+              >
+                <th
+                  class="handle"
+                  v-for="header in tableHeaders"
+                  :key="header"
+                  @click="onClickHeader(header)"
+                >
+                  {{ header }}
+                  <input
+                    class="search-input"
+                    v-model="searchQuery[header]"
+                    type="text"
+                    @click.stop
+                  />
+                  <transition name="fade">
+                    <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
+                  </transition>
+                  <transition name="fade">
+                    <span v-if="sortOrder[header] === 'desc'">&#x25BC;</span>
+                  </transition>
+                </th>
+              </draggable>
+            </tr>
+          </thead>
+
+          <tbody>
+            <draggable
+              class="data-table"
+              v-model="tableData"
+              :options="{ handle: '.handle', ...dragOptions }"
             >
-              {{ header[0] }}
-            </th>
-          </draggable>
-        </tr>
+              <transition-group
+                tag="tbody"
+                type="transition"
+                :name="!drag ? 'flip-list' : null"
+              >
+                <tr
+                  class="handle table-row"
+                  v-for="item in filteredTableData"
+                  :key="item.id"
+                >
+                  <td
+                    class="handle"
+                    v-for="header in tableHeaders"
+                    :key="header"
+                  >
+                    {{ item[header.toLowerCase()] }}
+                  </td>
+                </tr>
+              </transition-group>
+            </draggable>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pivot-mode">
         <tr>
           <draggable
             v-model="tableHeaders"
@@ -28,54 +92,48 @@
             @start="drag = true"
             @end="drag = false"
           >
-            <th
-              class="handle"
-              v-for="header in tableHeaders"
-              :key="header"
-              @click="onClickHeader(header)"
+            <transition-group
+              tag="tbody"
+              type="transition"
+              :name="!drag ? 'flip-list' : null"
             >
-              {{ header }}
-              <input
-                class="search-input"
-                v-model="searchQuery[header]"
-                type="text"
-                @click.stop
-              />
-              <transition name="fade">
-                <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
-              </transition>
-              <transition name="fade">
-                <span v-if="sortOrder[header] === 'desc'">&#x25BC;</span>
-              </transition>
-            </th>
+              <th
+                class="handle pivot-mode"
+                v-for="header in tableHeaders"
+                :key="header"
+                @click="onClickHeader(header)"
+              >
+                {{ header }}
+              </th>
+            </transition-group>
           </draggable>
         </tr>
-      </thead>
-
-      <tbody>
-        <draggable
-          class="data-table"
-          v-model="tableData"
-          :options="{ handle: '.handle', ...dragOptions }"
-        >
-          <transition-group
-            tag="tbody"
-            type="transition"
-            :name="!drag ? 'flip-list' : null"
+        <tr>
+          <draggable
+            v-model="upperTableHeaders"
+            :options="{ handle: '.handle' }"
+            @start="drag = true"
+            @end="updateUpperTableHeaders"
+            @change="updateTableHeaders"
           >
-            <tr
-              class="handle table-row"
-              v-for="item in filteredTableData"
-              :key="item.id"
+            <transition-group
+              tag="tbody"
+              type="transition"
+              :name="!drag ? 'flip-list' : null"
             >
-              <td class="handle" v-for="header in tableHeaders" :key="header">
-                {{ item[header.toLowerCase()] }}
-              </td>
-            </tr>
-          </transition-group>
-        </draggable>
-      </tbody>
-    </table>
+              <th
+                class="handle pivot-mode"
+                v-for="header in upperTableHeaders"
+                :key="header"
+                @click="onClickHeader(header)"
+              >
+                {{ header[0] }}
+              </th>
+            </transition-group>
+          </draggable>
+        </tr>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -210,7 +268,7 @@ export default {
           game: "Rithmomachy",
           bought: "✖️",
           balance: "$65,500",
-          rating: "★★★★★",
+          rating: "★★★★",
           winnings: "$12,000",
           jan: "$765,243",
           feb: "$764,235",
@@ -231,7 +289,7 @@ export default {
           language: "Portuguese",
           country: "Portugal",
           game: "Game of the Generals",
-          bought: "✔️",
+          bought: "✖️",
           balance: "$85,310",
           rating: "★★",
           winnings: "$1,780",
@@ -254,7 +312,7 @@ export default {
           language: "Spanish",
           country: "Colombia",
           game: "Hare and Hounds",
-          bought: "✔️",
+          bought: "✖️",
           balance: "$5,001",
           rating: "★",
           winnings: "$18,000",
@@ -277,7 +335,7 @@ export default {
           language: "English",
           country: "Ireland",
           game: "Sugoroku",
-          bought: "✖️",
+          bought: "✔️",
           balance: "$2,000",
           rating: "★★★",
           winnings: "$500",
@@ -300,7 +358,7 @@ export default {
           language: "French",
           country: "France",
           game: "Nine Men's Morris",
-          bought: "✖️",
+          bought: "✔️",
           balance: "$50,000",
           rating: "★★★★★",
           winnings: "$756,000",
@@ -348,7 +406,7 @@ export default {
           game: "Patolli",
           bought: "✔️",
           balance: "$85,609",
-          rating: "★★",
+          rating: "★★★★",
           winnings: "$7,780",
           jan: "$65,243",
           feb: "$64,235",
@@ -392,7 +450,7 @@ export default {
           language: "Greek",
           country: "Greece",
           game: "Downfall",
-          bought: "✔️",
+          bought: "✖️",
           balance: "$2,000",
           rating: "★★★★",
           winnings: "$2,000",
@@ -415,7 +473,7 @@ export default {
           language: "English",
           country: "Ireland",
           game: "Gipf",
-          bought: "✔️",
+          bought: "✖️",
           balance: "$50,000",
           rating: "★★★★",
           winnings: "$7,000",
@@ -461,9 +519,9 @@ export default {
           language: "Swedish",
           country: "Sweden",
           game: "Mad Gab",
-          bought: "✖️",
+          bought: "✔️",
           balance: "$85,609",
-          rating: "★★★",
+          rating: "★★★★",
           winnings: "$6,000",
           jan: "$65,243",
           feb: "$64,235",
@@ -566,6 +624,7 @@ export default {
 }
 .card {
   height: 85vh;
+  width: 68vw;
 }
 
 .custom-table td,
@@ -578,6 +637,7 @@ export default {
   padding: 7.5px;
   width: 100vw;
   border-bottom: #39304e 1px solid;
+  border: 1px solid red;
 }
 .table.custom-table th {
   border-bottom: #676176 1px solid;
@@ -667,5 +727,31 @@ td:hover {
 }
 .ghost {
   opacity: 0.5;
+}
+.content-container {
+  display: flex;
+  margin: 0 auto;
+  height: 85vh;
+  background-image: linear-gradient(
+    315deg,
+    hsl(234deg 19% 22%) 20%,
+    hsl(234deg 17% 25%) 20%,
+    hsl(235deg 22% 20%) 100%
+  );
+}
+
+.pivot-mode {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  border: 1px solid #3c4663;
+  margin: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.pivot-mode th:hover {
+  background-color: #37394f;
 }
 </style>
