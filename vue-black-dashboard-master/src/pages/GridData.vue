@@ -633,7 +633,7 @@ table {
 .table-responsive {
   /* Change the scrollbar width and color for Firefox */
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.4) rgba(255, 255, 255, 0.1);
+  scrollbar-color: rgba(0, 0, 0, 0.4) rgba(138, 33, 33, 0.1);
 }
 
 /* Change the scrollbar width and color for WebKit-based browsers */
@@ -644,7 +644,7 @@ table {
 }
 
 .table-responsive::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.35);
+  background-color: rgba(0, 0, 0, 0.38);
   border-radius: 4px;
 }
 
