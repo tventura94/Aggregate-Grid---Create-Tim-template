@@ -10,7 +10,6 @@
                 v-model="upperTableHeaders"
                 :options="{ handle: '.handle', ...dragOptions }"
                 :style="{ width: `${tableWidth}px` }"
-                @end="updateUpperTableHeaders"
                 @change="updateTableHeaders"
               >
                 <th
@@ -18,6 +17,7 @@
                   v-for="header in upperTableHeaders"
                   :key="header[0]"
                   :style="{ width: `${header[1]}%` }"
+                  v-resizable="{ handle: '.resize-handle' }"
                 >
                   {{ header[0] }}
                 </th>
@@ -37,6 +37,7 @@
                   @click="onClickHeader(header)"
                 >
                   {{ header }}
+
                   <input
                     class="search-input"
                     v-model="searchQuery[header]"
@@ -76,6 +77,7 @@
                     :key="header"
                   >
                     {{ item[header.toLowerCase()] }}
+                    <p>&#x2630;</p>
                   </td>
                 </tr>
               </transition-group>
@@ -86,12 +88,7 @@
 
       <div class="pivot-mode">
         <tr>
-          <draggable
-            v-model="tableHeaders"
-            :options="{ handle: '.handle' }"
-            @start="drag = true"
-            @end="drag = false"
-          >
+          <draggable v-model="tableHeaders" :options="{ handle: '.handle' }">
             <transition-group
               tag="tbody"
               type="transition"
@@ -101,7 +98,6 @@
                 class="handle pivot-mode"
                 v-for="header in tableHeaders"
                 :key="header"
-                @click="onClickHeader(header)"
               >
                 {{ header }}
               </th>
@@ -112,8 +108,6 @@
           <draggable
             v-model="upperTableHeaders"
             :options="{ handle: '.handle' }"
-            @start="drag = true"
-            @end="updateUpperTableHeaders"
             @change="updateTableHeaders"
           >
             <transition-group
@@ -137,6 +131,7 @@
   </div>
 </template>
 <script>
+import { Resizable } from "vue-resizable";
 import draggable from "vuedraggable";
 export default {
   data() {
@@ -567,11 +562,6 @@ export default {
     },
   },
   methods: {
-    updateUpperTableHeaders() {
-      this.upperColumnWidths = this.upperTableHeaders.map(
-        (header) => header[1]
-      );
-    },
     updateTableHeaders() {
       const newOrder = this.upperTableHeaders
         .map((header) => {
@@ -647,7 +637,6 @@ table {
   background-color: rgba(0, 0, 0, 0.38);
   border-radius: 4px;
 }
-
 .table-responsive::-webkit-scrollbar-track {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
@@ -683,6 +672,10 @@ table {
   overflow: hidden;
   padding-left: 0.1rem;
   padding-right: 0.1rem;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
   height: 4.5vh;
   line-height: 0.5; /* Add this line to adjust line-height */
   white-space: nowrap; /* Add this line to prevent text wrapping */
@@ -692,16 +685,19 @@ table {
   position: relative;
   z-index: 0;
   cursor: grabbing;
+  background-color: none;
 }
-.custom-table .handle:hover {
+.handle:hover {
   position: relative;
   background-color: #323346;
   color: #ffffff;
   z-index: 0;
 }
 
-tbody tr:nth-child(2n) {
-  background-color: #24263a;
+.handle p {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
 }
 
 th:hover,

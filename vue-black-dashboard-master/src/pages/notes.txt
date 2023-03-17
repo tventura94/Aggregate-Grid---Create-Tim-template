@@ -7,12 +7,15 @@ adding a filter to the table
 make sure countries display flag (OPTIONAL)
 
 
-PIVOT TABLE:
-get pivot table to remove item on dragging outside of div
+PIVOT TABLE: 3/17
+get pivot table to remove item on dragging outside of div or something else
 
 
 create pivot toggle switch, should clear rows and enable you to replace them.
-(this will probably suck)
+(this will probably suck) 3/17 - 3/18
+
+3/19 - make row data highlightable
+
 
 
 
