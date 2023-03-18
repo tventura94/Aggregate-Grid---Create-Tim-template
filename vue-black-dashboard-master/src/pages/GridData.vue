@@ -18,6 +18,7 @@
                   :key="header[0]"
                   :style="{ width: `${header[1]}%` }"
                   v-resizable="{ handle: '.resize-handle' }"
+                  v-if="checkedUpperHeaders.includes(header[0])"
                 >
                   {{ header[0] }}
                 </th>
@@ -32,9 +33,11 @@
               >
                 <th
                   class="handle"
+                  id="tableheader"
                   v-for="header in tableHeaders"
                   :key="header"
                   @click="onClickHeader(header)"
+                  v-if="checkedHeaders.includes(header)"
                 >
                   {{ header }}
 
@@ -75,9 +78,9 @@
                     class="handle"
                     v-for="header in tableHeaders"
                     :key="header"
+                    v-if="checkedHeaders.includes(header)"
                   >
                     {{ item[header.toLowerCase()] }}
-                    <p>&#x2630;</p>
                   </td>
                 </tr>
               </transition-group>
@@ -100,6 +103,12 @@
                 :key="header"
               >
                 {{ header }}
+                <input
+                  type="checkbox"
+                  :value="header"
+                  @input="toggleColumn(header)"
+                  :checked="checkedHeaders.includes(header)"
+                />
               </th>
             </transition-group>
           </draggable>
@@ -118,10 +127,15 @@
               <th
                 class="handle pivot-mode"
                 v-for="header in upperTableHeaders"
-                :key="header"
-                @click="onClickHeader(header)"
+                :key="header[0]"
               >
                 {{ header[0] }}
+                <input
+                  type="checkbox"
+                  :value="header[0]"
+                  @input="toggleUpperColumn(header[0])"
+                  :checked="checkedUpperHeaders.includes(header[0])"
+                />
               </th>
             </transition-group>
           </draggable>
@@ -131,11 +145,12 @@
   </div>
 </template>
 <script>
-import { Resizable } from "vue-resizable";
 import draggable from "vuedraggable";
 export default {
   data() {
     return {
+      checkedUpperHeaders: [],
+      checkedHeaders: [],
       tableWidth: ["1975"],
       drag: false,
       upperTableHeaders: [
@@ -562,8 +577,31 @@ export default {
     },
   },
   methods: {
+    toggleColumn(header) {
+      const index = this.checkedHeaders.indexOf(header);
+      if (index === -1) {
+        this.checkedHeaders.push(header);
+      } else {
+        this.checkedHeaders.splice(index, 1);
+      }
+    },
+    toggleUpperColumn(header) {
+      const index = this.checkedUpperHeaders.indexOf(header);
+      if (index === -1) {
+        this.checkedUpperHeaders.push(header);
+      } else {
+        this.checkedUpperHeaders.splice(index, 1);
+      }
+      this.updateTableHeaders();
+    },
+    mounted() {
+      window.addEventListener("resize", () => {
+        this.tableWidth = window.innerWidth;
+      });
+    },
     updateTableHeaders() {
       const newOrder = this.upperTableHeaders
+        .filter((header) => this.checkedUpperHeaders.includes(header[0]))
         .map((header) => {
           if (header[0] in this.tableHeaderMap) {
             return this.tableHeaderMap[header[0]];
@@ -574,12 +612,10 @@ export default {
         .flat();
       this.tableHeaders = newOrder;
     },
-    mounted() {
-      window.addEventListener("resize", () => {
-        this.tableWidth = window.innerWidth;
-      });
-    },
     onClickHeader(header) {
+      if (!header) {
+        return;
+      }
       let columnData = this.tableData.map((row) => row[header.toLowerCase()]);
       if (this.sortOrder[header] === "asc") {
         this.sortOrder[header] = "desc";
@@ -598,12 +634,16 @@ export default {
       }
     },
   },
-  components: {
-    draggable,
-  },
   created() {
     // make a copy of the original table data
     this.originalTableData = JSON.parse(JSON.stringify(this.tableData));
+    this.checkedHeaders = [...this.tableHeaders];
+    this.checkedUpperHeaders = this.upperTableHeaders.map(
+      (header) => header[0]
+    );
+  },
+  components: {
+    draggable,
   },
 };
 </script>
