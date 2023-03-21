@@ -17,8 +17,9 @@
                   v-for="header in upperTableHeaders"
                   :key="header[0]"
                   :style="{ width: `${header[1]}%` }"
-                  v-resizable="{ handle: '.resize-handle' }"
-                  v-if="checkedUpperHeaders.includes(header[0])"
+                  v-if="
+                    checkedUpperHeaders.includes(header[0]) && !tableInEditMode
+                  "
                 >
                   {{ header[0] }}
                 </th>
@@ -37,7 +38,7 @@
                   v-for="header in tableHeaders"
                   :key="header"
                   @click="onClickHeader(header)"
-                  v-if="checkedHeaders.includes(header)"
+                  v-if="checkedHeaders.includes(header) && !tableInEditMode"
                 >
                   {{ header }}
 
@@ -59,6 +60,16 @@
           </thead>
 
           <tbody>
+            <tr v-show="tableInEditMode" class="droppable-area sticky-headers">
+              <th
+                :colspan="tableHeaders.length"
+                @drop="onDrop"
+                @dragover.prevent
+                @dragenter.prevent
+              >
+                Drop here to add a header
+              </th>
+            </tr>
             <draggable
               class="data-table"
               v-model="tableData"
@@ -70,15 +81,16 @@
                 :name="!drag ? 'flip-list' : null"
               >
                 <tr
-                  class="handle table-row"
+                  class="handle table-row flex-table-row"
                   v-for="item in filteredTableData"
                   :key="item.id"
                 >
                   <td
-                    class="handle"
+                    class="handle flex-table-cell"
                     v-for="header in tableHeaders"
                     :key="header"
-                    v-if="checkedHeaders.includes(header)"
+                    v-if="checkedHeaders.includes(header) && !tableInEditMode"
+                    :style="{ width: `${header[1]}%` }"
                   >
                     {{ item[header.toLowerCase()] }}
                   </td>
@@ -90,6 +102,12 @@
       </div>
 
       <div class="pivot-mode">
+        <button
+          @click="toggleTableEditMode"
+          :class="{ active: tableInEditMode }"
+        >
+          {{ tableInEditMode ? "Exit Edit Mode" : "Enter Edit Mode" }}
+        </button>
         <tr>
           <draggable v-model="tableHeaders" :options="{ handle: '.handle' }">
             <transition-group
@@ -101,6 +119,8 @@
                 class="handle pivot-mode"
                 v-for="header in tableHeaders"
                 :key="header"
+                draggable="true"
+                @dragstart="onDragStart($event, header)"
               >
                 {{ header }}
                 <input
@@ -128,6 +148,8 @@
                 class="handle pivot-mode"
                 v-for="header in upperTableHeaders"
                 :key="header[0]"
+                draggable="true"
+                @dragstart="onDragStart($event, header[0])"
               >
                 {{ header[0] }}
                 <input
@@ -149,22 +171,18 @@ import draggable from "vuedraggable";
 export default {
   data() {
     return {
+      tableInEditMode: false,
       checkedUpperHeaders: [],
       checkedHeaders: [],
       tableWidth: ["1975"],
       drag: false,
+      draggedHeader: null,
       upperTableHeaders: [
         ["Participants", 15],
         ["Game of Choice", 10],
         ["Performance", 15],
         ["Budget", 60],
       ],
-      headerWidths: {
-        Participants: 15,
-        "Game of Choice": 10,
-        Performance: 15,
-        Budget: 60,
-      },
       tableHeaders: [
         "Names",
         "Language",
@@ -230,328 +248,6 @@ export default {
           nov: "$60,125",
           dec: "$61,520",
         },
-        {
-          id: 2,
-          names: "Tony Smith",
-          language: "English",
-          country: "Ireland",
-          game: "Chess",
-          bought: "✖️",
-          balance: "$2,000",
-          rating: "★★★★★",
-          winnings: "$7,000",
-          jan: "$6,243",
-          feb: "$6,235",
-          mar: "$6,845",
-          apr: "$6,245",
-          may: "$6,542",
-          jun: "$6,452",
-          jul: "$6,124",
-          aug: "$5,142",
-          sep: "$6,312",
-          oct: "$5,842",
-          nov: "$6,125",
-          dec: "$6,520",
-        },
-        {
-          id: 3,
-          names: "Andrew Connell",
-          language: "English",
-          country: "England",
-          game: "Checkers",
-          bought: "✖️",
-          balance: "$50,000",
-          rating: "★★★★★",
-          winnings: "$70,000",
-          jan: "$11,542",
-          feb: "$11,235",
-          mar: "$11,845",
-          apr: "$11,245",
-          may: "$11,542",
-          jun: "$11,452",
-          jul: "$11,124",
-          aug: "$11,142",
-          sep: "$11,112",
-          oct: "$10,042",
-          nov: "$10,525",
-          dec: "$11,520",
-        },
-        {
-          id: 4,
-          names: "Kevin Flanagan",
-          language: "Spanish",
-          country: "Uruguay",
-          game: "Rithmomachy",
-          bought: "✖️",
-          balance: "$65,500",
-          rating: "★★★★",
-          winnings: "$12,000",
-          jan: "$765,243",
-          feb: "$764,235",
-          mar: "$760,845",
-          apr: "$761,245",
-          may: "$763,542",
-          jun: "$766,452",
-          jul: "$760,124",
-          aug: "$758,142",
-          sep: "$760,312",
-          oct: "$759,842",
-          nov: "$760,125",
-          dec: "$761,520",
-        },
-        {
-          id: 5,
-          names: "Dimple Unalkat",
-          language: "Portuguese",
-          country: "Portugal",
-          game: "Game of the Generals",
-          bought: "✖️",
-          balance: "$85,310",
-          rating: "★★",
-          winnings: "$1,780",
-          jan: "$75,243",
-          feb: "$74,235",
-          mar: "$70,845",
-          apr: "$71,245",
-          may: "$73,542",
-          jun: "$76,452",
-          jul: "$70,124",
-          aug: "$78,142",
-          sep: "$60,312",
-          oct: "$79,842",
-          nov: "$70,125",
-          dec: "$71,520",
-        },
-        {
-          id: 6,
-          names: "Gil Lopes",
-          language: "Spanish",
-          country: "Colombia",
-          game: "Hare and Hounds",
-          bought: "✖️",
-          balance: "$5,001",
-          rating: "★",
-          winnings: "$18,000",
-          jan: "$3,450",
-          feb: "$6,465",
-          mar: "605",
-          apr: "$6,145",
-          may: "$3,542",
-          jun: "$3,452",
-          jul: "$3,124",
-          aug: "$3,142",
-          sep: "$3,312",
-          oct: "$3,842",
-          nov: "$3,125",
-          dec: "$3,520",
-        },
-        {
-          id: 7,
-          names: "Sophie Beckham",
-          language: "English",
-          country: "Ireland",
-          game: "Sugoroku",
-          bought: "✔️",
-          balance: "$2,000",
-          rating: "★★★",
-          winnings: "$500",
-          jan: "$45,243",
-          feb: "$44,235",
-          mar: "$40,845",
-          apr: "$41,245",
-          may: "$43,542",
-          jun: "$46,452",
-          jul: "$40,124",
-          aug: "$48,142",
-          sep: "$40,312",
-          oct: "$49,842",
-          nov: "$40,125",
-          dec: "$41,520",
-        },
-        {
-          id: 8,
-          names: "Isabelle Black",
-          language: "French",
-          country: "France",
-          game: "Nine Men's Morris",
-          bought: "✔️",
-          balance: "$50,000",
-          rating: "★★★★★",
-          winnings: "$756,000",
-          jan: "$94,520",
-          feb: "$94,235",
-          mar: "$95,201",
-          apr: "$96,512",
-          may: "$98,452",
-          jun: "$96,452",
-          jul: "$90,153",
-          aug: "$98,142",
-          sep: "$90,312",
-          oct: "$99,842",
-          nov: "$60,125",
-          dec: "$61,520",
-        },
-        {
-          id: 9,
-          names: "Emily Braxton",
-          language: "Maltese",
-          country: "Malta",
-          game: "Blockade",
-          bought: "✔️",
-          balance: "$65,500",
-          rating: "★★★★★",
-          winnings: "$2,985",
-          jan: "$65,243",
-          feb: "$64,235",
-          mar: "$60,845",
-          apr: "$61,245",
-          may: "$63,542",
-          jun: "$66,452",
-          jul: "$60,124",
-          aug: "$58,142",
-          sep: "$60,312",
-          oct: "$59,842",
-          nov: "$60,125",
-          dec: "$61,520",
-        },
-        {
-          id: 10,
-          names: "Olivia Brennan",
-          language: "French",
-          country: "France",
-          game: "Patolli",
-          bought: "✔️",
-          balance: "$85,609",
-          rating: "★★★★",
-          winnings: "$7,780",
-          jan: "$65,243",
-          feb: "$64,235",
-          mar: "$60,845",
-          apr: "$61,245",
-          may: "$63,542",
-          jun: "$66,452",
-          jul: "$60,124",
-          aug: "$58,142",
-          sep: "$60,312",
-          oct: "$59,842",
-          nov: "$60,125",
-          dec: "$61,520",
-        },
-        {
-          id: 11,
-          names: "Lily Brock",
-          language: "Italian",
-          country: "Italy",
-          game: "YINSH",
-          bought: "✖️",
-          balance: "$5,020",
-          rating: "★",
-          winnings: "$1,000",
-          jan: "$65,243",
-          feb: "$64,235",
-          mar: "$60,845",
-          apr: "$61,245",
-          may: "$63,542",
-          jun: "$66,452",
-          jul: "$60,124",
-          aug: "$58,142",
-          sep: "$60,312",
-          oct: "$59,842",
-          nov: "$60,125",
-          dec: "$61,520",
-        },
-        {
-          id: 12,
-          names: "Chloe Bryson",
-          language: "Greek",
-          country: "Greece",
-          game: "Downfall",
-          bought: "✖️",
-          balance: "$2,000",
-          rating: "★★★★",
-          winnings: "$2,000",
-          jan: "$65,243",
-          feb: "$64,235",
-          mar: "$60,845",
-          apr: "$61,245",
-          may: "$63,542",
-          jun: "$66,452",
-          jul: "$60,124",
-          aug: "$58,142",
-          sep: "$60,312",
-          oct: "$59,842",
-          nov: "$60,125",
-          dec: "$61,520",
-        },
-        {
-          id: 13,
-          names: "Isabella Caldwell",
-          language: "English",
-          country: "Ireland",
-          game: "Gipf",
-          bought: "✖️",
-          balance: "$50,000",
-          rating: "★★★★",
-          winnings: "$7,000",
-          jan: "$65,243",
-          feb: "$64,235",
-          mar: "$60,845",
-          apr: "$61,245",
-          may: "$63,542",
-          jun: "$66,452",
-          jul: "$60,124",
-          aug: "$58,142",
-          sep: "$60,312",
-          oct: "$59,842",
-          nov: "$60,125",
-          dec: "$61,520",
-        },
-        {
-          id: 14,
-          names: "Amelia Cage",
-          language: "English",
-          country: "Ireland",
-          game: "Shogi",
-          bought: "✔️",
-          balance: "$65,500",
-          rating: "★★★",
-          winnings: "$19,000",
-          jan: "$65,243",
-          feb: "$64,235",
-          mar: "$60,845",
-          apr: "$61,245",
-          may: "$63,542",
-          jun: "$66,452",
-          jul: "$60,124",
-          aug: "$58,142",
-          sep: "$60,312",
-          oct: "$59,842",
-          nov: "$60,125",
-          dec: "$61,520",
-        },
-        {
-          id: 15,
-          names: "Jessica Carson",
-          language: "Swedish",
-          country: "Sweden",
-          game: "Mad Gab",
-          bought: "✔️",
-          balance: "$85,609",
-          rating: "★★★★",
-          winnings: "$6,000",
-          jan: "$65,243",
-          feb: "$64,235",
-          mar: "$60,845",
-          apr: "$61,245",
-          may: "$63,542",
-          jun: "$66,452",
-          jul: "$60,124",
-          aug: "$58,142",
-          sep: "$60,312",
-          oct: "$59,842",
-          nov: "$60,125",
-          dec: "$61,520",
-        },
       ],
       searchQuery: {},
       sortOrder: {},
@@ -583,6 +279,19 @@ export default {
     },
   },
   methods: {
+    onDrop(event) {
+      const header = event.dataTransfer.getData("text");
+      if (header) {
+        const table = event.target.closest("table");
+        const thead = table.querySelector("thead");
+        const th = document.createElement("th");
+        th.innerText = header;
+        thead.querySelector("tr").appendChild(th);
+      }
+    },
+    toggleTableEditMode() {
+      this.tableInEditMode = !this.tableInEditMode;
+    },
     toggleColumn(header) {
       const index = this.checkedHeaders.indexOf(header);
       if (index === -1) {
@@ -591,6 +300,7 @@ export default {
         this.checkedHeaders.splice(index, 1);
       }
     },
+
     toggleUpperColumn(header) {
       const index = this.checkedUpperHeaders.indexOf(header);
       if (index === -1) {
@@ -600,29 +310,15 @@ export default {
       }
       this.updateTableHeaders();
 
-      // set width of each header
-      this.upperTableHeaders.forEach((upperHeader) => {
-        if (this.checkedUpperHeaders.includes(upperHeader[0])) {
-          // use original width if header is checked
-          upperHeader[1] = this.headerWidths[upperHeader[0]];
-        }
-      });
-
-      // calculate total width of checked headers
+      // adjust width of checked headers
       const totalWidth = this.upperTableHeaders
         .filter((header) => this.checkedUpperHeaders.includes(header[0]))
         .reduce((sum, header) => sum + header[1], 0);
 
-      // adjust width of checked headers
       this.upperTableHeaders.forEach((header) => {
         if (this.checkedUpperHeaders.includes(header[0])) {
           header[1] = Math.round((header[1] / totalWidth) * 10000) / 100;
         }
-      });
-    },
-    mounted() {
-      window.addEventListener("resize", () => {
-        this.tableWidth = window.innerWidth;
       });
     },
     updateTableHeaders() {
@@ -642,24 +338,50 @@ export default {
       if (!header) {
         return;
       }
-      let columnData = this.tableData.map((row) => row[header.toLowerCase()]);
-      if (this.sortOrder[header] === "asc") {
-        this.sortOrder[header] = "desc";
-        columnData.sort((a, b) => b.localeCompare(a));
-      } else if (this.sortOrder[header] === "desc") {
-        this.sortOrder[header] = null;
-        this.tableData = JSON.parse(JSON.stringify(this.originalTableData));
-        return;
-      } else {
+      const isMoneyColumn = this.tableData.some((row) =>
+        /^\$[\d,]+$/.test(row[header.toLowerCase()])
+      );
+      const moneyStringToNumber = (moneyString) =>
+        parseFloat(moneyString.replace(/[$,]/g, ""));
+
+      const sortRows = (a, b) => {
+        const aValue = a[header.toLowerCase()];
+        const bValue = b[header.toLowerCase()];
+
+        Object.keys(this.sortOrder).forEach((key) => {
+          if (key !== header) {
+            this.sortOrder[key] = null;
+          }
+        });
+
+        if (isMoneyColumn) {
+          return moneyStringToNumber(aValue) - moneyStringToNumber(bValue);
+        }
+        return aValue.localeCompare(bValue);
+      };
+
+      if (
+        this.sortOrder[header] !== "asc" &&
+        this.sortOrder[header] !== "desc"
+      ) {
         this.sortOrder[header] = "asc";
-        columnData.sort((a, b) => a.localeCompare(b));
+      } else {
+        this.sortOrder[header] =
+          this.sortOrder[header] === "asc" ? "desc" : null;
       }
 
-      for (let i = 0; i < this.tableData.length; i++) {
-        this.tableData[i][header.toLowerCase()] = columnData[i];
+      if (this.sortOrder[header]) {
+        this.tableData.sort((a, b) => {
+          const sortResult = sortRows(a, b);
+          return this.sortOrder[header] === "asc" ? sortResult : -sortResult;
+        });
+      } else {
+        this.tableData = JSON.parse(JSON.stringify(this.originalTableData));
+        return;
       }
     },
   },
+
   created() {
     // make a copy of the original table data
     this.originalTableData = JSON.parse(JSON.stringify(this.tableData));
@@ -667,11 +389,6 @@ export default {
     this.checkedUpperHeaders = this.upperTableHeaders.map(
       (header) => header[0]
     );
-    // store original width of each header
-    this.headerWidths = {};
-    this.upperTableHeaders.forEach((header) => {
-      this.headerWidths[header[0]] = header[1];
-    });
   },
   components: {
     draggable,
@@ -730,6 +447,7 @@ table {
 .table.custom-table td {
   border-top: none;
 }
+
 .custom-table th {
   height: 75px;
   border-top: none;
@@ -739,7 +457,7 @@ table {
 .custom-table td {
   padding-top: 1rem;
   padding-bottom: 1rem;
-  width: 5%;
+  min-width: 5vw;
   overflow: hidden;
   padding-left: 0.1rem;
   padding-right: 0.1rem;
@@ -765,6 +483,13 @@ table {
   z-index: 0;
 }
 
+.flex-table-row {
+  width: 100vw;
+}
+
+.flex-table-cell {
+  width: 100vw;
+}
 .handle p {
   visibility: hidden;
   opacity: 0;
@@ -815,12 +540,15 @@ td:hover {
   width: 100vw;
   color: #c5d6ce;
 }
+
 .flip-list-move {
   transition: transform 0.5s;
 }
+
 .no-move {
   transition: transform 0s;
 }
+
 .ghost {
   opacity: 0.5;
 }
