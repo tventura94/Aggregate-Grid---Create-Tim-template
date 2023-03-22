@@ -43,7 +43,7 @@
                     id="tableheader"
                     v-for="header in tableHeaders"
                     :key="header"
-                    @click="onClickHeader(header)"
+                    @click="sortHeadersClick(header)"
                     v-if="checkedHeaders.includes(header) && !tableInEditMode"
                   >
                     {{ header }}
@@ -95,21 +95,23 @@
               </draggable>
             </tbody>
 
-            <!-- V-IF TABLE EDIT MODE -->
+            <!-- TABLE EDIT MODE -->
 
             <div v-if="tableInEditMode">
               <thead>
                 <tr>
                   <draggable
                     class="upperTable"
-                    v-model="upperTableHeaders"
+                    v-model="upperEditTableHeaders"
                     :options="{ handle: '.handle', ...dragOptions }"
                     :style="{ width: `${tableWidth}px` }"
                     @change="updateTableHeaders"
+                    :group="{ name: 'upperTableHeadersGroup' }"
+                    @add="onAddHeader"
                   >
                     <th
                       class="handle"
-                      v-for="header in upperTableHeaders"
+                      v-for="header in upperEditTableHeaders"
                       :key="header[0]"
                       :style="{ width: `${header[1]}%` }"
                       v-if="
@@ -124,21 +126,21 @@
                 </tr>
                 <tr>
                   <draggable
-                    v-model="tableHeaders"
+                    v-model="editTableHeaders"
                     :options="{ handle: '.handle' }"
                     @start="drag = true"
                     @end="drag = false"
+                    :group="{ name: 'tableHeadersGroup' }"
                   >
                     <th
                       class="handle subHeader"
                       id="tableheader"
-                      v-for="header in tableHeaders"
+                      v-for="header in editTableHeaders"
                       :key="header"
-                      @click="onClickHeader(header)"
+                      @click="sortHeadersClick(header)"
                       v-if="checkedHeaders.includes(header) && tableInEditMode"
                     >
                       {{ header }}
-
                       <input
                         class="search-input"
                         v-model="searchQuery[header]"
@@ -175,7 +177,7 @@
                     >
                       <td
                         class="handle flex-table-cell"
-                        v-for="header in tableHeaders"
+                        v-for="header in editTableHeaders"
                         :key="header"
                         v-if="
                           checkedHeaders.includes(header) && tableInEditMode
@@ -193,9 +195,15 @@
         </div>
       </div>
 
+      <!-- PIVOT MODE -->
+
       <div class="pivot-mode">
         <tr>
-          <draggable v-model="tableHeaders" :options="{ handle: '.handle' }">
+          <draggable
+            v-model="tableHeaders"
+            :options="{ handle: '.handle' }"
+            :group="{ name: 'tableHeadersGroup', pull: 'clone', put: false }"
+          >
             <transition-group
               tag="tbody"
               type="transition"
@@ -231,6 +239,11 @@
             v-model="upperTableHeaders"
             :options="{ handle: '.handle' }"
             @change="updateTableHeaders"
+            :group="{
+              name: 'upperTableHeadersGroup',
+              pull: 'clone',
+              put: false,
+            }"
           >
             <transition-group
               tag="tbody"
@@ -264,6 +277,10 @@ import draggable from "vuedraggable";
 export default {
   data() {
     return {
+      upperPivotTableHeaders: [],
+      upperEditTableHeaders: [],
+      pivotTableHeaders: [],
+      editTableHeaders: [],
       tableInEditMode: false,
       checkedUpperHeaders: [],
       checkedHeaders: [],
@@ -350,6 +367,15 @@ export default {
     };
   },
   computed: {
+    headers() {
+      return this.tableInEditMode ? this.pivotTableHeaders : this.tableHeaders;
+    },
+    upperHeaders() {
+      return this.tableInEditMode
+        ? this.upperPivotTableHeaders
+        : this.upperTableHeaders;
+    },
+
     dragOptions() {
       return {
         animation: 200,
@@ -374,6 +400,21 @@ export default {
     },
   },
   methods: {
+    onAddHeader(event) {
+      const header = event.item.innerText.trim();
+      this.toggleColumn(header);
+      this.updateTableHeaders(header);
+      this.removeFromTableHeaders(header);
+    },
+    removeFromTableHeaders(header) {
+      const index = this.tableHeaders.indexOf(header);
+      if (index !== -1) {
+        this.tableHeaders.splice(index, 1);
+      }
+    },
+    onDrop(event) {
+      this.droppedValue = event.item.innerText.trim();
+    },
     toggleTableEditMode() {
       this.tableInEditMode = !this.tableInEditMode;
     },
@@ -407,6 +448,7 @@ export default {
         }
       });
     },
+
     updateTableHeaders() {
       const newOrder = this.upperTableHeaders
         .filter((header) => this.checkedUpperHeaders.includes(header[0]))
@@ -420,7 +462,8 @@ export default {
         .flat();
       this.tableHeaders = newOrder;
     },
-    onClickHeader(header) {
+
+    sortHeadersClick(header) {
       if (!header) {
         return;
       }
@@ -439,7 +482,6 @@ export default {
             this.sortOrder[key] = null;
           }
         });
-
         if (isMoneyColumn) {
           return moneyStringToNumber(aValue) - moneyStringToNumber(bValue);
         }
@@ -454,6 +496,7 @@ export default {
         this.sortOrder[header] =
           this.sortOrder[header] === "asc" ? "desc" : null;
       }
+
       if (this.sortOrder[header]) {
         this.tableData.sort((a, b) => {
           const sortResult = sortRows(a, b);
@@ -473,6 +516,10 @@ export default {
     this.checkedUpperHeaders = this.upperTableHeaders.map(
       (header) => header[0]
     );
+    this.pivotTableHeaders = this.tableHeaders.slice();
+    this.editTableHeaders = this.tableHeaders.slice();
+    this.upperPivotTableHeaders = this.upperTableHeaders.slice();
+    this.upperEditTableHeaders = this.upperTableHeaders.slice();
   },
   components: {
     draggable,
