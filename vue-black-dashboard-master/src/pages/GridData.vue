@@ -374,47 +374,6 @@ export default {
     },
   },
   methods: {
-    onDropEmptyTable(event) {
-      event.preventDefault();
-      const header = event.dataTransfer.getData("text");
-      if (header && this.draggedHeader && this.draggedHeaderIndex !== -1) {
-        const table = event.target.closest("table");
-        const thead = table.querySelector("thead");
-        const tbody = table.querySelector("tbody");
-
-        // Add header
-        const th = document.createElement("th");
-        th.textContent = header;
-        th.onclick = () => this.onHeaderClick(header);
-        th.draggable = true; // Make header draggable
-        th.addEventListener("dragstart", (event) =>
-          this.onDragStart(event, header)
-        );
-        th.addEventListener("dragover", this.onDragOver);
-        th.addEventListener("drop", (event) =>
-          this.onDropExistingHeader(event, header)
-        );
-        th.addEventListener("dragend", this.onDragEnd);
-
-        const trHeader = document.createElement("tr");
-        trHeader.appendChild(th);
-        thead.appendChild(trHeader);
-
-        // Clear the tbody
-        while (tbody.firstChild) {
-          tbody.removeChild(tbody.firstChild);
-        }
-
-        this.draggedHeader = null;
-        this.draggedHeaderIndex = -1;
-      }
-    },
-    onDragStart(event, header) {
-      event.dataTransfer.setData("text", header);
-      event.dataTransfer.effectAllowed = "move";
-      this.draggedHeader = event.target;
-      this.draggedHeaderIndex = this.tableHeaders.indexOf(header);
-    },
     toggleTableEditMode() {
       this.tableInEditMode = !this.tableInEditMode;
     },
@@ -486,7 +445,6 @@ export default {
         }
         return aValue.localeCompare(bValue);
       };
-
       if (
         this.sortOrder[header] !== "asc" &&
         this.sortOrder[header] !== "desc"
@@ -496,7 +454,6 @@ export default {
         this.sortOrder[header] =
           this.sortOrder[header] === "asc" ? "desc" : null;
       }
-
       if (this.sortOrder[header]) {
         this.tableData.sort((a, b) => {
           const sortResult = sortRows(a, b);
