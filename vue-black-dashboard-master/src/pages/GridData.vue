@@ -1,113 +1,199 @@
 <template>
-  <div>
+  <div class="parent">
     <div class="content-container">
-      <div class="card card-grid table-responsive">
-        <table class="table custom-table">
-          <thead class="sticky-headers">
-            <tr>
-              <draggable
-                class="upperTable"
-                v-model="upperTableHeaders"
-                :options="{ handle: '.handle', ...dragOptions }"
-                :style="{ width: `${tableWidth}px` }"
-                @change="updateTableHeaders"
-              >
-                <th
-                  class="handle"
-                  v-for="header in upperTableHeaders"
-                  :key="header[0]"
-                  :style="{ width: `${header[1]}%` }"
-                  v-if="
-                    checkedUpperHeaders.includes(header[0]) && !tableInEditMode
-                  "
+      <div
+        class="card card-grid"
+        :class="{
+          'table-responsive': !tableInEditMode,
+          'table-responsive-no-scroll': tableInEditMode,
+          'table-container': tableInEditMode,
+        }"
+      >
+        <div>
+          <table class="table custom-table">
+            <thead v-if="!tableInEditMode" class="sticky-headers">
+              <tr>
+                <draggable
+                  class="upperTable"
+                  v-model="upperTableHeaders"
+                  :options="{ handle: '.handle', ...dragOptions }"
+                  :style="{ width: `${tableWidth}px` }"
+                  @change="updateTableHeaders"
                 >
-                  {{ header[0] }}
-                </th>
-              </draggable>
-            </tr>
-            <tr>
-              <draggable
-                v-model="tableHeaders"
-                :options="{ handle: '.handle' }"
-                @start="drag = true"
-                @end="drag = false"
-              >
-                <th
-                  class="handle"
-                  id="tableheader"
-                  v-for="header in tableHeaders"
-                  :key="header"
-                  @click="onClickHeader(header)"
-                  v-if="checkedHeaders.includes(header) && !tableInEditMode"
+                  <th
+                    class="handle"
+                    v-for="header in upperTableHeaders"
+                    :key="header[0]"
+                    :style="{ width: `${header[1]}%` }"
+                    v-if="checkedUpperHeaders.includes(header[0])"
+                  >
+                    {{ header[0] }}
+                  </th>
+                </draggable>
+              </tr>
+              <tr>
+                <draggable
+                  v-model="tableHeaders"
+                  :options="{ handle: '.handle' }"
+                  @start="drag = true"
+                  @end="drag = false"
                 >
-                  {{ header }}
-
-                  <input
-                    class="search-input"
-                    v-model="searchQuery[header]"
-                    type="text"
-                    @click.stop
-                  />
-                  <transition name="fade">
-                    <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
-                  </transition>
-                  <transition name="fade">
-                    <span v-if="sortOrder[header] === 'desc'">&#x25BC;</span>
-                  </transition>
-                </th>
-              </draggable>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr v-show="tableInEditMode" class="droppable-area sticky-headers">
-              <th
-                :colspan="tableHeaders.length"
-                @drop="onDrop"
-                @dragover.prevent
-                @dragenter.prevent
-              >
-                Drop here to add a header
-              </th>
-            </tr>
-            <draggable
-              class="data-table"
-              v-model="tableData"
-              :options="{ handle: '.handle', ...dragOptions }"
-            >
-              <transition-group
-                tag="tbody"
-                type="transition"
-                :name="!drag ? 'flip-list' : null"
-              >
-                <tr
-                  class="handle table-row flex-table-row"
-                  v-for="item in filteredTableData"
-                  :key="item.id"
-                >
-                  <td
-                    class="handle flex-table-cell"
+                  <th
+                    class="handle subHeader"
+                    id="tableheader"
                     v-for="header in tableHeaders"
                     :key="header"
+                    @click="onClickHeader(header)"
                     v-if="checkedHeaders.includes(header) && !tableInEditMode"
-                    :style="{ width: `${header[1]}%` }"
                   >
-                    {{ item[header.toLowerCase()] }}
-                  </td>
+                    {{ header }}
+
+                    <input
+                      class="search-input"
+                      v-model="searchQuery[header]"
+                      type="text"
+                      @click.stop
+                    />
+                    <transition name="fade">
+                      <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
+                    </transition>
+                    <transition name="fade">
+                      <span v-if="sortOrder[header] === 'desc'">&#x25BC;</span>
+                    </transition>
+                  </th>
+                </draggable>
+              </tr>
+            </thead>
+
+            <tbody v-if="!tableInEditMode">
+              <draggable
+                class="data-table"
+                v-model="tableData"
+                :options="{ handle: '.handle', ...dragOptions }"
+              >
+                <transition-group
+                  tag="tbody"
+                  type="transition"
+                  :name="!drag ? 'flip-list' : null"
+                >
+                  <tr
+                    class="handle table-row flex-table-row"
+                    v-for="item in filteredTableData"
+                    :key="item.id"
+                  >
+                    <td
+                      class="handle flex-table-cell"
+                      v-for="header in tableHeaders"
+                      :key="header"
+                      v-if="checkedHeaders.includes(header) && !tableInEditMode"
+                      :style="{ width: `${header[1]}%` }"
+                    >
+                      {{ item[header.toLowerCase()] }}
+                    </td>
+                  </tr>
+                </transition-group>
+              </draggable>
+            </tbody>
+
+            <!-- V-IF TABLE EDIT MODE -->
+
+            <div v-if="tableInEditMode">
+              <thead>
+                <tr>
+                  <draggable
+                    class="upperTable"
+                    v-model="upperTableHeaders"
+                    :options="{ handle: '.handle', ...dragOptions }"
+                    :style="{ width: `${tableWidth}px` }"
+                    @change="updateTableHeaders"
+                  >
+                    <th
+                      class="handle"
+                      v-for="header in upperTableHeaders"
+                      :key="header[0]"
+                      :style="{ width: `${header[1]}%` }"
+                      v-if="
+                        checkedUpperHeaders.includes(
+                          header[0] || tableInEditMode
+                        )
+                      "
+                    >
+                      {{ header[0] }}
+                    </th>
+                  </draggable>
                 </tr>
-              </transition-group>
-            </draggable>
-          </tbody>
-        </table>
+                <tr>
+                  <draggable
+                    v-model="tableHeaders"
+                    :options="{ handle: '.handle' }"
+                    @start="drag = true"
+                    @end="drag = false"
+                  >
+                    <th
+                      class="handle subHeader"
+                      id="tableheader"
+                      v-for="header in tableHeaders"
+                      :key="header"
+                      @click="onClickHeader(header)"
+                      v-if="checkedHeaders.includes(header) && tableInEditMode"
+                    >
+                      {{ header }}
+
+                      <input
+                        class="search-input"
+                        v-model="searchQuery[header]"
+                        type="text"
+                        @click.stop
+                      />
+                      <transition name="fade">
+                        <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
+                      </transition>
+                      <transition name="fade">
+                        <span v-if="sortOrder[header] === 'desc'"
+                          >&#x25BC;</span
+                        >
+                      </transition>
+                    </th>
+                  </draggable>
+                </tr>
+              </thead>
+              <tbody>
+                <draggable
+                  class="data-table"
+                  v-model="tableData"
+                  :options="{ handle: '.handle', ...dragOptions }"
+                >
+                  <transition-group
+                    tag="tbody"
+                    type="transition"
+                    :name="!drag ? 'flip-list' : null"
+                  >
+                    <tr
+                      class="handle table-row flex-table-row"
+                      v-for="item in filteredTableData"
+                      :key="item.id"
+                    >
+                      <td
+                        class="handle flex-table-cell"
+                        v-for="header in tableHeaders"
+                        :key="header"
+                        v-if="
+                          checkedHeaders.includes(header) && tableInEditMode
+                        "
+                        :style="{ width: `${header[1]}%` }"
+                      >
+                        {{ item[header.toLowerCase()] }}
+                      </td>
+                    </tr>
+                  </transition-group>
+                </draggable>
+              </tbody>
+            </div>
+          </table>
+        </div>
       </div>
 
       <div class="pivot-mode">
-        <button
-          @click="toggleTableEditMode"
-          :class="{ active: tableInEditMode }"
-        >
-          {{ tableInEditMode ? "Exit Edit Mode" : "Enter Edit Mode" }}
-        </button>
         <tr>
           <draggable v-model="tableHeaders" :options="{ handle: '.handle' }">
             <transition-group
@@ -133,7 +219,14 @@
             </transition-group>
           </draggable>
         </tr>
+
         <tr>
+          <button
+            @click="toggleTableEditMode()"
+            :class="{ active: tableInEditMode }"
+          >
+            Edit Mode
+          </button>
           <draggable
             v-model="upperTableHeaders"
             :options="{ handle: '.handle' }"
@@ -224,6 +317,7 @@ export default {
           "Dec",
         ],
       },
+      newTableData: [],
       tableData: [
         {
           id: 1,
@@ -249,6 +343,7 @@ export default {
           dec: "$61,520",
         },
       ],
+      draggedHeaderIndex: -1,
       searchQuery: {},
       sortOrder: {},
       originalTableData: [],
@@ -279,19 +374,51 @@ export default {
     },
   },
   methods: {
-    onDrop(event) {
+    onDropEmptyTable(event) {
+      event.preventDefault();
       const header = event.dataTransfer.getData("text");
-      if (header) {
+      if (header && this.draggedHeader && this.draggedHeaderIndex !== -1) {
         const table = event.target.closest("table");
         const thead = table.querySelector("thead");
+        const tbody = table.querySelector("tbody");
+
+        // Add header
         const th = document.createElement("th");
-        th.innerText = header;
-        thead.querySelector("tr").appendChild(th);
+        th.textContent = header;
+        th.onclick = () => this.onHeaderClick(header);
+        th.draggable = true; // Make header draggable
+        th.addEventListener("dragstart", (event) =>
+          this.onDragStart(event, header)
+        );
+        th.addEventListener("dragover", this.onDragOver);
+        th.addEventListener("drop", (event) =>
+          this.onDropExistingHeader(event, header)
+        );
+        th.addEventListener("dragend", this.onDragEnd);
+
+        const trHeader = document.createElement("tr");
+        trHeader.appendChild(th);
+        thead.appendChild(trHeader);
+
+        // Clear the tbody
+        while (tbody.firstChild) {
+          tbody.removeChild(tbody.firstChild);
+        }
+
+        this.draggedHeader = null;
+        this.draggedHeaderIndex = -1;
       }
+    },
+    onDragStart(event, header) {
+      event.dataTransfer.setData("text", header);
+      event.dataTransfer.effectAllowed = "move";
+      this.draggedHeader = event.target;
+      this.draggedHeaderIndex = this.tableHeaders.indexOf(header);
     },
     toggleTableEditMode() {
       this.tableInEditMode = !this.tableInEditMode;
     },
+
     toggleColumn(header) {
       const index = this.checkedHeaders.indexOf(header);
       if (index === -1) {
@@ -397,15 +524,17 @@ export default {
 </script>
 
 <style>
+.vertical-header {
+  display: flex;
+  flex-direction: column;
+}
+
 .swapping {
   transition: all 0.3s ease-in-out;
 }
 .card-grid {
   height: 85vh;
   width: 68vw;
-}
-table {
-  border-radius: 5%;
 }
 
 .table-responsive {
@@ -429,7 +558,10 @@ table {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
 }
-
+.table-responsive-no-scroll {
+  width: 100vw;
+  display: block;
+}
 .custom-table td,
 .custom-table th {
   transition: all 0.3s ease-in-out;
@@ -449,11 +581,20 @@ table {
 }
 
 .custom-table th {
-  height: 75px;
+  height: 70px;
   border-top: none;
-  padding-top: 2rem;
+  padding-top: 1.6rem;
+  padding-bottom: 0px;
   border-left: none;
 }
+.custom-table .subHeader {
+  height: 70px;
+  border-top: none;
+  padding-top: 1rem;
+  padding-bottom: 0.4rem;
+  border-left: none;
+}
+
 .custom-table td {
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -461,7 +602,6 @@ table {
   overflow: hidden;
   padding-left: 0.1rem;
   padding-right: 0.1rem;
-  text-align: center;
   justify-content: center;
   align-items: center;
   align-self: center;
@@ -486,6 +626,52 @@ table {
 .flex-table-row {
   width: 100vw;
 }
+.table-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  opacity: 1;
+  background-image: linear-gradient(
+    315deg,
+    hsl(234deg 17% 25%) 0%,
+    hsl(234deg 19% 22%) 35%,
+    hsl(235deg 22% 20%) 100%
+  );
+  width: 100vw;
+}
+.table-container thead {
+  color: #c5d6ce;
+}
+.table-container tbody {
+  background-color: #27293d;
+}
+.table-container {
+  /* Change the scrollbar width and color for Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.4) rgba(138, 33, 33, 0.1);
+}
+
+/* Change the scrollbar width and color for WebKit-based browsers */
+.table-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background-color: 39304e (255, 255, 255, 0.1);
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.38);
+  border-radius: 4px;
+}
+.table-container::-webkit-scrollbar-track {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.table-container-no-scroll {
+  width: 100vw;
+  display: block;
+}
 
 .flex-table-cell {
   width: 100vw;
@@ -503,7 +689,7 @@ td:hover {
 .search-input {
   width: 80px;
   height: 30px;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   margin-bottom: 0.5rem;
   border: 1px solid #2b3553;
   border-radius: 5px;
@@ -581,5 +767,20 @@ td:hover {
 
 .pivot-mode th:hover {
   background-color: #37394f;
+}
+
+.droppable-area {
+  min-height: 75px;
+  min-width: 100%;
+  display: flex;
+}
+
+.tableHeaderHeight {
+  height: 30px;
+}
+
+.editable-headers {
+  position: sticky;
+  top: 0;
 }
 </style>
