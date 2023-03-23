@@ -35,8 +35,6 @@
                 <draggable
                   v-model="tableHeaders"
                   :options="{ handle: '.handle' }"
-                  @start="drag = true"
-                  @end="drag = false"
                 >
                   <th
                     class="handle subHeader"
@@ -65,7 +63,7 @@
               </tr>
             </thead>
 
-            <tbody v-if="!tableInEditMode">
+            <tbody class="original-table" v-if="!tableInEditMode">
               <draggable
                 class="data-table"
                 v-model="tableData"
@@ -77,17 +75,22 @@
                   :name="!drag ? 'flip-list' : null"
                 >
                   <tr
-                    class="handle table-row flex-table-row"
+                    class="table-row flex-table-row"
                     v-for="item in filteredTableData"
                     :key="item.id"
                   >
                     <td
-                      class="handle flex-table-cell"
+                      class="flex-table-cell"
                       v-for="header in tableHeaders"
                       :key="header"
                       v-if="checkedHeaders.includes(header) && !tableInEditMode"
                       :style="{ width: `${header[1]}%` }"
                     >
+                      <!-- Add the drag handle with the 'drag-handle' class -->
+                      <i
+                        v-if="header === tableHeaders[0]"
+                        class="fas fa-bars handle"
+                      ></i>
                       {{ item[header.toLowerCase()] }}
                     </td>
                   </tr>
@@ -105,7 +108,7 @@
                     v-model="upperEditTableHeaders"
                     :options="{ handle: '.handle', ...dragOptions }"
                     :style="{ width: `${tableWidth}px` }"
-                    @change="updateTableHeaders"
+                    @change="updateEditTableHeaders"
                     :group="{ name: 'upperTableHeadersGroup' }"
                     @add="onAddHeader"
                   >
@@ -128,12 +131,11 @@
                   <draggable
                     v-model="editTableHeaders"
                     :options="{ handle: '.handle' }"
-                    @start="drag = true"
-                    @end="drag = false"
                     :group="{ name: 'tableHeadersGroup' }"
+                    :style="{ width: `${tableWidth}px` }"
                   >
                     <th
-                      class="handle subHeader"
+                      class="handle subHeaderEdit"
                       id="tableheader"
                       v-for="header in editTableHeaders"
                       :key="header"
@@ -171,12 +173,12 @@
                     :name="!drag ? 'flip-list' : null"
                   >
                     <tr
-                      class="handle table-row flex-table-row"
+                      class="table-row flex-table-row"
                       v-for="item in filteredTableData"
                       :key="item.id"
                     >
                       <td
-                        class="handle flex-table-cell"
+                        class="flex-table-cell"
                         v-for="header in editTableHeaders"
                         :key="header"
                         v-if="
@@ -184,6 +186,10 @@
                         "
                         :style="{ width: `${header[1]}%` }"
                       >
+                        <i
+                          v-if="header === tableHeaders[0]"
+                          class="fas fa-bars handle"
+                        ></i>
                         {{ item[header.toLowerCase()] }}
                       </td>
                     </tr>
@@ -284,6 +290,8 @@ export default {
       tableInEditMode: false,
       checkedUpperHeaders: [],
       checkedHeaders: [],
+      originalCheckedHeaders: [],
+      originalCheckedUpperHeaders: [],
       tableWidth: ["1975"],
       drag: false,
       draggedHeader: null,
@@ -334,7 +342,6 @@ export default {
           "Dec",
         ],
       },
-      newTableData: [],
       tableData: [
         {
           id: 1,
@@ -417,6 +424,17 @@ export default {
     },
     toggleTableEditMode() {
       this.tableInEditMode = !this.tableInEditMode;
+      if (this.tableInEditMode) {
+        // store original checked headers when entering edit mode
+        this.originalCheckedHeaders = [...this.checkedHeaders];
+        this.originalCheckedUpperHeaders = [...this.checkedUpperHeaders];
+        this.checkedHeaders = [];
+        this.checkedUpperHeaders = [];
+      } else {
+        // restore original checked headers when exiting edit mode
+        this.checkedHeaders = [...this.originalCheckedHeaders];
+        this.checkedUpperHeaders = [...this.originalCheckedUpperHeaders];
+      }
     },
 
     toggleColumn(header) {
@@ -461,6 +479,20 @@ export default {
         })
         .flat();
       this.tableHeaders = newOrder;
+    },
+
+    updateEditTableHeaders() {
+      const newOrder = this.upperEditTableHeaders
+        .filter((header) => this.checkedUpperHeaders.includes(header[0]))
+        .map((header) => {
+          if (header[0] in this.tableHeaderMap) {
+            return this.tableHeaderMap[header[0]];
+          } else {
+            return [header[0]];
+          }
+        })
+        .flat();
+      this.editTableHeaders = newOrder;
     },
 
     sortHeadersClick(header) {
@@ -528,6 +560,16 @@ export default {
 </script>
 
 <style>
+.trows {
+  height: 10.3vh;
+  background-color: #2b2d41;
+}
+.upper-trows {
+  height: 7.3vh;
+  border-bottom: 1px solid #415b7b;
+  background-color: #2b2d41;
+}
+
 .vertical-header {
   display: flex;
   flex-direction: column;
@@ -591,14 +633,6 @@ export default {
   padding-bottom: 0px;
   border-left: none;
 }
-.custom-table .subHeader {
-  height: 70px;
-  border-top: none;
-  padding-top: 1rem;
-  padding-bottom: 0.4rem;
-  border-left: none;
-}
-
 .custom-table td {
   padding-top: 1rem;
   padding-bottom: 1rem;
@@ -740,7 +774,8 @@ td:hover {
 }
 
 .ghost {
-  opacity: 0.5;
+  opacity: 0;
+  background-color: transparent;
 }
 .content-container {
   display: flex;
