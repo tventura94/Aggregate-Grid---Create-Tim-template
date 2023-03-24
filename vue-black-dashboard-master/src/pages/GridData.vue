@@ -91,6 +91,7 @@
                         v-if="header === tableHeaders[0]"
                         class="fas fa-bars handle"
                       ></i>
+
                       {{ item[header.toLowerCase()] }}
                     </td>
                   </tr>
@@ -244,44 +245,50 @@
         </tr>
 
         <tr>
-          <button
-            @click="toggleTableEditMode()"
-            :class="{ active: tableInEditMode }"
-          >
-            Edit Mode
-          </button>
-          <draggable
-            v-model="upperTableHeaders"
-            :options="{ handle: '.handle' }"
-            @change="updateTableHeaders"
-            :group="{
-              name: 'upperTableHeadersGroup',
-              pull: 'clone',
-              put: false,
-            }"
-          >
-            <transition-group
-              tag="tbody"
-              type="transition"
-              :name="!drag ? 'flip-list' : null"
+          <div class="groupModeButton-container">
+            <div class="flexEnd">
+              <i
+                @click="toggleTableEditMode()"
+                :class="{ active: tableInEditMode }"
+                class="fas fa-layer-group grid-object"
+              ></i>
+              <th>Group Mode</th>
+            </div>
+          </div>
+          <div class="dragable">
+            <draggable
+              v-model="upperTableHeaders"
+              :options="{ handle: '.handle' }"
+              @change="updateTableHeaders"
+              :group="{
+                name: 'upperTableHeadersGroup',
+                pull: 'clone',
+                put: false,
+              }"
             >
-              <th
-                class="handle pivot-mode"
-                v-for="header in upperTableHeaders"
-                :key="header[0]"
-                draggable="true"
-                @dragstart="onDragStart($event, header[0])"
+              <transition-group
+                tag="tbody"
+                type="transition"
+                :name="!drag ? 'flip-list' : null"
               >
-                {{ header[0] }}
-                <input
-                  type="checkbox"
-                  :value="header[0]"
-                  @input="toggleUpperColumn(header[0])"
-                  :checked="checkedUpperHeaders.includes(header[0])"
-                />
-              </th>
-            </transition-group>
-          </draggable>
+                <th
+                  class="handle pivot-mode"
+                  v-for="header in upperTableHeaders"
+                  :key="header[0]"
+                  draggable="true"
+                  @dragstart="onDragStart($event, header[0])"
+                >
+                  {{ header[0] }}
+                  <input
+                    type="checkbox"
+                    :value="header[0]"
+                    @input="toggleUpperColumn(header[0])"
+                    :checked="checkedUpperHeaders.includes(header[0])"
+                  />
+                </th>
+              </transition-group>
+            </draggable>
+          </div>
         </tr>
       </div>
     </div>
@@ -289,6 +296,7 @@
 </template>
 <script>
 import draggable from "vuedraggable";
+
 export default {
   data() {
     return {
@@ -1184,7 +1192,7 @@ td:hover {
   align-items: center;
   border-radius: 10px;
   border: 1px solid #3c4663;
-  margin: 1rem;
+  margin: 0.85rem;
   transition: all 0.3s ease-in-out;
   text-align: center;
   z-index: 1;
@@ -1194,6 +1202,7 @@ td:hover {
   display: flex;
   justify-content: space-between;
   padding-left: 4px;
+  border: 1px solid #3c4663;
 }
 
 .pivot-mode th:hover {
@@ -1253,5 +1262,38 @@ input[type="checkbox"]:focus {
 .subHeader::after {
   width: 90%;
   margin-left: 8px;
+}
+
+.grid-object {
+  font-size: 35px;
+}
+.grid-object-font {
+  position: relative;
+  font-size: 15px;
+  bottom: 15rem;
+  left: 1.7rem;
+}
+.groupModeButton-container {
+  position: relative;
+  display: flex;
+  bottom: 3rem;
+  flex-direction: column;
+  align-items: center;
+}
+.groupModeButton-container th {
+  border: none;
+  margin-right: 0.4rem;
+}
+.groupModeButton-container th:hover {
+  cursor: default;
+  opacity: 1;
+  background-color: initial;
+}
+
+.flexEnd {
+  transition: color ease-in 0.15s;
+}
+.flexEnd:hover {
+  color: #6aae8c;
 }
 </style>
