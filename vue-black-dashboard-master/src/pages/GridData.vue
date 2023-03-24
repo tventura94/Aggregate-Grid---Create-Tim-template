@@ -100,7 +100,7 @@
 
             <!-- TABLE EDIT MODE -->
 
-            <div v-if="tableInEditMode">
+            <div class="editModeTable" v-if="tableInEditMode">
               <thead>
                 <tr>
                   <draggable
@@ -127,38 +127,47 @@
                     </th>
                   </draggable>
                 </tr>
-                <tr>
-                  <draggable
-                    v-model="editTableHeaders"
-                    :options="{ handle: '.handle' }"
-                    :group="{ name: 'tableHeadersGroup' }"
-                    :style="{ width: `${tableWidth}px` }"
-                  >
-                    <th
-                      class="handle subHeaderEdit"
-                      id="tableheader"
-                      v-for="header in editTableHeaders"
-                      :key="header"
-                      @click="sortHeadersClick(header)"
-                      v-if="checkedHeaders.includes(header) && tableInEditMode"
+                <tr class="secondrow">
+                  <div class="header-container">
+                    <draggable
+                      v-model="editTableHeaders"
+                      :options="{ handle: '.handle' }"
+                      :group="{ name: 'tableHeadersGroup' }"
+                      :style="{ width: `${tableWidth}px` }"
+                      @add="onAddEditHeader"
                     >
-                      {{ header }}
-                      <input
-                        class="search-input"
-                        v-model="searchQuery[header]"
-                        type="text"
-                        @click.stop
-                      />
-                      <transition name="fade">
-                        <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
-                      </transition>
-                      <transition name="fade">
-                        <span v-if="sortOrder[header] === 'desc'"
-                          >&#x25BC;</span
-                        >
-                      </transition>
-                    </th>
-                  </draggable>
+                      <th
+                        class="handle subHeaderEdit"
+                        id="tableheader"
+                        v-for="header in editTableHeaders"
+                        :key="header"
+                        :style="{ width: `5px` }"
+                        @click="sortHeadersClick(header)"
+                        v-if="
+                          checkedHeaders.includes(header) && tableInEditMode
+                        "
+                        v-show="displayHeaders.includes(header)"
+                      >
+                        {{ header }}
+                        <input
+                          class="search-input"
+                          v-model="searchQuery[header]"
+                          type="text"
+                          @click.stop
+                        />
+                        <transition name="fade">
+                          <span v-if="sortOrder[header] === 'asc'"
+                            >&#x25B2;</span
+                          >
+                        </transition>
+                        <transition name="fade">
+                          <span v-if="sortOrder[header] === 'desc'"
+                            >&#x25BC;</span
+                          >
+                        </transition>
+                      </th>
+                    </draggable>
+                  </div>
                 </tr>
               </thead>
               <tbody>
@@ -179,7 +188,7 @@
                     >
                       <td
                         class="flex-table-cell"
-                        v-for="header in editTableHeaders"
+                        v-for="header in displayHeaders"
                         :key="header"
                         v-if="
                           checkedHeaders.includes(header) && tableInEditMode
@@ -208,7 +217,7 @@
           <draggable
             v-model="tableHeaders"
             :options="{ handle: '.handle' }"
-            :group="{ name: 'tableHeadersGroup', pull: 'clone', put: false }"
+            :group="{ name: 'tableHeadersGroup', pull: 'clone', put: true }"
           >
             <transition-group
               tag="tbody"
@@ -283,10 +292,11 @@ import draggable from "vuedraggable";
 export default {
   data() {
     return {
+      displayHeaders: [],
       upperPivotTableHeaders: [],
       upperEditTableHeaders: [],
-      pivotTableHeaders: [],
       editTableHeaders: [],
+      pivotTableHeaders: [],
       tableInEditMode: false,
       checkedUpperHeaders: [],
       checkedHeaders: [],
@@ -407,11 +417,31 @@ export default {
     },
   },
   methods: {
+    removeColumn(header) {
+      for (let i = 0; i < this.tableData.length; i++) {
+        const item = this.tableData[i];
+        delete item[header.toLowerCase()];
+      }
+    },
     onAddHeader(event) {
       const header = event.item.innerText.trim();
       this.toggleColumn(header);
       this.updateTableHeaders(header);
       this.removeFromTableHeaders(header);
+      this.removeColumn(header);
+    },
+
+    onAddEditHeader(event) {
+      const addedHeader = this.editTableHeaders[event.newIndex];
+      const originalIndex = this.tableHeaders.indexOf(addedHeader);
+
+      if (!this.displayHeaders.includes(addedHeader)) {
+        this.displayHeaders.push(addedHeader);
+        this.editTableHeaders.splice(event.newIndex, 1);
+        this.tableHeaders.splice(originalIndex, 1);
+      } else {
+        this.editTableHeaders.splice(event.newIndex, 1);
+      }
     },
     removeFromTableHeaders(header) {
       const index = this.tableHeaders.indexOf(header);
@@ -428,8 +458,6 @@ export default {
         // store original checked headers when entering edit mode
         this.originalCheckedHeaders = [...this.checkedHeaders];
         this.originalCheckedUpperHeaders = [...this.checkedUpperHeaders];
-        this.checkedHeaders = [];
-        this.checkedUpperHeaders = [];
       } else {
         // restore original checked headers when exiting edit mode
         this.checkedHeaders = [...this.originalCheckedHeaders];
@@ -804,6 +832,12 @@ td:hover {
   z-index: 1;
 }
 
+.pivot-mode th {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 4px;
+}
+
 .pivot-mode th:hover {
   background-color: #37394f;
 }
@@ -821,5 +855,31 @@ td:hover {
 .editable-headers {
   position: sticky;
   top: 0;
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid #7c84b8;
+  background-color: #2b2e41;
+  margin-right: 5px;
+  transition: ease-in 0.2s;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #4c506e;
+}
+
+input[type="checkbox"]:hover {
+  background-color: #3b9d6d;
+}
+
+input[type="checkbox"]:focus {
+  outline: none;
+  border: 2px solid #2b2e41;
 }
 </style>
