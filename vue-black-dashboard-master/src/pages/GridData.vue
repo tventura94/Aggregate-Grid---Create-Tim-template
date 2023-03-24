@@ -1023,6 +1023,7 @@ tbody tr:nth-child(even) {
   overflow-wrap: break-word;
   text-align: start;
   padding-left: 1rem;
+  color: rgb(129, 133, 165);
 }
 
 i {
