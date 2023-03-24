@@ -21,7 +21,7 @@
                   @change="updateTableHeaders"
                 >
                   <th
-                    class="handle"
+                    class="handle upperHeader"
                     v-for="header in upperTableHeaders"
                     :key="header[0]"
                     :style="{ width: `${header[1]}%` }"
@@ -113,7 +113,7 @@
                     @add="onAddHeader"
                   >
                     <th
-                      class="handle"
+                      class="handle upperHeader"
                       v-for="header in upperEditTableHeaders"
                       :key="header[0]"
                       :style="{ width: `${header[1]}%` }"
@@ -137,7 +137,7 @@
                       @add="onAddEditHeader"
                     >
                       <th
-                        class="handle subHeaderEdit"
+                        class="handle subHeader"
                         id="tableheader"
                         v-for="header in editTableHeaders"
                         :key="header"
@@ -376,6 +376,328 @@ export default {
           nov: "$60,125",
           dec: "$61,520",
         },
+        {
+          id: 2,
+          names: "Tony Smith",
+          language: "English",
+          country: "Ireland",
+          game: "Chess",
+          bought: "✖️",
+          balance: "$2,000",
+          rating: "★★★★★",
+          winnings: "$7,000",
+          jan: "$6,243",
+          feb: "$6,235",
+          mar: "$6,845",
+          apr: "$6,245",
+          may: "$6,542",
+          jun: "$6,452",
+          jul: "$6,124",
+          aug: "$5,142",
+          sep: "$6,312",
+          oct: "$5,842",
+          nov: "$6,125",
+          dec: "$6,520",
+        },
+        {
+          id: 3,
+          names: "Andrew Connell",
+          language: "English",
+          country: "England",
+          game: "Checkers",
+          bought: "✖️",
+          balance: "$50,000",
+          rating: "★★★★★",
+          winnings: "$70,000",
+          jan: "$11,542",
+          feb: "$11,235",
+          mar: "$11,845",
+          apr: "$11,245",
+          may: "$11,542",
+          jun: "$11,452",
+          jul: "$11,124",
+          aug: "$11,142",
+          sep: "$11,112",
+          oct: "$10,042",
+          nov: "$10,525",
+          dec: "$11,520",
+        },
+        {
+          id: 4,
+          names: "Kevin Flanagan",
+          language: "Spanish",
+          country: "Uruguay",
+          game: "Rithmomachy",
+          bought: "✖️",
+          balance: "$65,500",
+          rating: "★★★★",
+          winnings: "$12,000",
+          jan: "$765,243",
+          feb: "$764,235",
+          mar: "$760,845",
+          apr: "$761,245",
+          may: "$763,542",
+          jun: "$766,452",
+          jul: "$760,124",
+          aug: "$758,142",
+          sep: "$760,312",
+          oct: "$759,842",
+          nov: "$760,125",
+          dec: "$761,520",
+        },
+        {
+          id: 5,
+          names: "Dimple Unalkat",
+          language: "Portuguese",
+          country: "Portugal",
+          game: "Game of the Generals",
+          bought: "✖️",
+          balance: "$85,310",
+          rating: "★★",
+          winnings: "$1,780",
+          jan: "$75,243",
+          feb: "$74,235",
+          mar: "$70,845",
+          apr: "$71,245",
+          may: "$73,542",
+          jun: "$76,452",
+          jul: "$70,124",
+          aug: "$78,142",
+          sep: "$60,312",
+          oct: "$79,842",
+          nov: "$70,125",
+          dec: "$71,520",
+        },
+        {
+          id: 6,
+          names: "Gil Lopes",
+          language: "Spanish",
+          country: "Colombia",
+          game: "Hare and Hounds",
+          bought: "✖️",
+          balance: "$5,001",
+          rating: "★",
+          winnings: "$18,000",
+          jan: "$3,450",
+          feb: "$6,465",
+          mar: "605",
+          apr: "$6,145",
+          may: "$3,542",
+          jun: "$3,452",
+          jul: "$3,124",
+          aug: "$3,142",
+          sep: "$3,312",
+          oct: "$3,842",
+          nov: "$3,125",
+          dec: "$3,520",
+        },
+        {
+          id: 7,
+          names: "Sophie Beckham",
+          language: "English",
+          country: "Ireland",
+          game: "Sugoroku",
+          bought: "✔️",
+          balance: "$2,000",
+          rating: "★★★",
+          winnings: "$500",
+          jan: "$45,243",
+          feb: "$44,235",
+          mar: "$40,845",
+          apr: "$41,245",
+          may: "$43,542",
+          jun: "$46,452",
+          jul: "$40,124",
+          aug: "$48,142",
+          sep: "$40,312",
+          oct: "$49,842",
+          nov: "$40,125",
+          dec: "$41,520",
+        },
+        {
+          id: 8,
+          names: "Isabelle Black",
+          language: "French",
+          country: "France",
+          game: "Nine Men's Morris",
+          bought: "✔️",
+          balance: "$50,000",
+          rating: "★★★★★",
+          winnings: "$756,000",
+          jan: "$94,520",
+          feb: "$94,235",
+          mar: "$95,201",
+          apr: "$96,512",
+          may: "$98,452",
+          jun: "$96,452",
+          jul: "$90,153",
+          aug: "$98,142",
+          sep: "$90,312",
+          oct: "$99,842",
+          nov: "$60,125",
+          dec: "$61,520",
+        },
+        {
+          id: 9,
+          names: "Emily Braxton",
+          language: "Maltese",
+          country: "Malta",
+          game: "Blockade",
+          bought: "✔️",
+          balance: "$65,500",
+          rating: "★★★★★",
+          winnings: "$2,985",
+          jan: "$65,243",
+          feb: "$64,235",
+          mar: "$60,845",
+          apr: "$61,245",
+          may: "$63,542",
+          jun: "$66,452",
+          jul: "$60,124",
+          aug: "$58,142",
+          sep: "$60,312",
+          oct: "$59,842",
+          nov: "$60,125",
+          dec: "$61,520",
+        },
+        {
+          id: 10,
+          names: "Olivia Brennan",
+          language: "French",
+          country: "France",
+          game: "Patolli",
+          bought: "✔️",
+          balance: "$85,609",
+          rating: "★★★★",
+          winnings: "$7,780",
+          jan: "$65,243",
+          feb: "$64,235",
+          mar: "$60,845",
+          apr: "$61,245",
+          may: "$63,542",
+          jun: "$66,452",
+          jul: "$60,124",
+          aug: "$58,142",
+          sep: "$60,312",
+          oct: "$59,842",
+          nov: "$60,125",
+          dec: "$61,520",
+        },
+        {
+          id: 11,
+          names: "Lily Brock",
+          language: "Italian",
+          country: "Italy",
+          game: "YINSH",
+          bought: "✖️",
+          balance: "$5,020",
+          rating: "★",
+          winnings: "$1,000",
+          jan: "$65,243",
+          feb: "$64,235",
+          mar: "$60,845",
+          apr: "$61,245",
+          may: "$63,542",
+          jun: "$66,452",
+          jul: "$60,124",
+          aug: "$58,142",
+          sep: "$60,312",
+          oct: "$59,842",
+          nov: "$60,125",
+          dec: "$61,520",
+        },
+        {
+          id: 12,
+          names: "Chloe Bryson",
+          language: "Greek",
+          country: "Greece",
+          game: "Downfall",
+          bought: "✖️",
+          balance: "$2,000",
+          rating: "★★★★",
+          winnings: "$2,000",
+          jan: "$65,243",
+          feb: "$64,235",
+          mar: "$60,845",
+          apr: "$61,245",
+          may: "$63,542",
+          jun: "$66,452",
+          jul: "$60,124",
+          aug: "$58,142",
+          sep: "$60,312",
+          oct: "$59,842",
+          nov: "$60,125",
+          dec: "$61,520",
+        },
+        {
+          id: 13,
+          names: "Isabella Caldwell",
+          language: "English",
+          country: "Ireland",
+          game: "Gipf",
+          bought: "✖️",
+          balance: "$50,000",
+          rating: "★★★★",
+          winnings: "$7,000",
+          jan: "$65,243",
+          feb: "$64,235",
+          mar: "$60,845",
+          apr: "$61,245",
+          may: "$63,542",
+          jun: "$66,452",
+          jul: "$60,124",
+          aug: "$58,142",
+          sep: "$60,312",
+          oct: "$59,842",
+          nov: "$60,125",
+          dec: "$61,520",
+        },
+        {
+          id: 14,
+          names: "Amelia Cage",
+          language: "English",
+          country: "Ireland",
+          game: "Shogi",
+          bought: "✔️",
+          balance: "$65,500",
+          rating: "★★★",
+          winnings: "$19,000",
+          jan: "$65,243",
+          feb: "$64,235",
+          mar: "$60,845",
+          apr: "$61,245",
+          may: "$63,542",
+          jun: "$66,452",
+          jul: "$60,124",
+          aug: "$58,142",
+          sep: "$60,312",
+          oct: "$59,842",
+          nov: "$60,125",
+          dec: "$61,520",
+        },
+        {
+          id: 15,
+          names: "Jessica Carson",
+          language: "Swedish",
+          country: "Sweden",
+          game: "Mad Gab",
+          bought: "✔️",
+          balance: "$85,609",
+          rating: "★★★★",
+          winnings: "$6,000",
+          jan: "$65,243",
+          feb: "$64,235",
+          mar: "$60,845",
+          apr: "$61,245",
+          may: "$63,542",
+          jun: "$66,452",
+          jul: "$60,124",
+          aug: "$58,142",
+          sep: "$60,312",
+          oct: "$59,842",
+          nov: "$60,125",
+          dec: "$61,520",
+        },
       ],
       draggedHeaderIndex: -1,
       searchQuery: {},
@@ -588,6 +910,12 @@ export default {
 </script>
 
 <style>
+tbody tr:nth-child(even) {
+  background-color: #242638;
+}
+.parent {
+  border-radius: 5px;
+}
 .trows {
   height: 10.3vh;
   background-color: #2b2d41;
@@ -643,7 +971,7 @@ export default {
   vertical-align: middle;
   font-size: 13px;
   table-layout: auto;
-  padding: 7.5px;
+  padding: 8px;
   width: 100vw;
   border-bottom: #39304e 1px solid;
 }
@@ -654,17 +982,33 @@ export default {
   border-top: none;
 }
 
-.custom-table th {
-  height: 70px;
+.custom-table .upperHeader {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
   border-top: none;
-  padding-top: 1.6rem;
-  padding-bottom: 0px;
   border-left: none;
+  border-bottom: none;
+}
+.custom-table .subHeader {
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+  align-items: center;
+  justify-content: center;
+  border-top: none;
+  border-left: none;
+
+  padding-top: 1rem;
 }
 .custom-table td {
   padding-top: 1rem;
   padding-bottom: 1rem;
-  min-width: 5vw;
+  min-width: 4, 5vw;
   overflow: hidden;
   padding-left: 0.1rem;
   padding-right: 0.1rem;
@@ -675,7 +1019,17 @@ export default {
   line-height: 0.5; /* Add this line to adjust line-height */
   white-space: nowrap; /* Add this line to prevent text wrapping */
   text-overflow: ellipsis; /* Add this line to indicate truncated text */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: start;
+  padding-left: 1rem;
 }
+
+i {
+  margin-right: 0.7rem;
+  font-size: larger;
+}
+
 .custom-table .handle:active {
   position: relative;
   z-index: 0;
@@ -740,7 +1094,7 @@ export default {
 }
 
 .flex-table-cell {
-  width: 100vw;
+  min-width: 100px;
 }
 .handle p {
   visibility: hidden;
@@ -755,8 +1109,8 @@ td:hover {
 .search-input {
   width: 80px;
   height: 30px;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  margin-top: 2rem;
+  margin-bottom: 0.33rem;
   border: 1px solid #2b3553;
   border-radius: 5px;
   background-color: #27293d;
@@ -778,6 +1132,9 @@ td:hover {
 }
 
 .sticky-headers {
+  box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
+  -webkit-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
+  -moz-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -842,12 +1199,6 @@ td:hover {
   background-color: #37394f;
 }
 
-.droppable-area {
-  min-height: 75px;
-  min-width: 100%;
-  display: flex;
-}
-
 .tableHeaderHeight {
   height: 30px;
 }
@@ -871,7 +1222,7 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:checked {
-  background-color: #4c506e;
+  background-color: #525670;
 }
 
 input[type="checkbox"]:hover {
@@ -881,5 +1232,25 @@ input[type="checkbox"]:hover {
 input[type="checkbox"]:focus {
   outline: none;
   border: 2px solid #2b2e41;
+}
+.subHeader {
+  position: relative;
+}
+
+.subHeader::before,
+.subHeader::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 58px;
+  height: 0.1px;
+  background-color: #676176;
+}
+
+.subHeader::after {
+  width: 90%;
+  margin-left: 8px;
 }
 </style>
