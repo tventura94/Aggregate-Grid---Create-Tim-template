@@ -310,7 +310,7 @@ export default {
       checkedHeaders: [],
       originalCheckedHeaders: [],
       originalCheckedUpperHeaders: [],
-      tableWidth: ["1975"],
+      tableWidth: ["2116"],
       drag: false,
       draggedHeader: null,
       upperTableHeaders: [
@@ -991,7 +991,6 @@ tbody tr:nth-child(even) {
 }
 
 .custom-table .upperHeader {
-  margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1003,7 +1002,6 @@ tbody tr:nth-child(even) {
   border-bottom: none;
 }
 .custom-table .subHeader {
-  margin: 0 auto;
   justify-content: center;
   align-items: center;
   align-items: center;
@@ -1141,6 +1139,7 @@ td:hover {
 }
 
 .sticky-headers {
+  width: 100%;
   box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
   -webkit-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
   -moz-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
@@ -1207,10 +1206,6 @@ td:hover {
 
 .pivot-mode th:hover {
   background-color: #37394f;
-}
-
-.tableHeaderHeight {
-  height: 30px;
 }
 
 .editable-headers {
@@ -1282,14 +1277,9 @@ input[type="checkbox"]:focus {
 }
 .groupModeButton-container th {
   border: none;
-  margin-right: 0.4rem;
-}
-.groupModeButton-container th:hover {
+  margin-right: 0.7rem;
   cursor: default;
-  opacity: 1;
-  background-color: initial;
 }
-
 .flexEnd {
   transition: color ease-in 0.15s;
 }
