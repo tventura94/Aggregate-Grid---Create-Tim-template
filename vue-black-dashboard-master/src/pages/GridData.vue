@@ -80,12 +80,22 @@
                     :key="item.id"
                   >
                     <td
+                      id="original-table-data"
                       class="flex-table-cell"
                       v-for="header in tableHeaders"
                       :key="header"
                       v-if="checkedHeaders.includes(header) && !tableInEditMode"
                       :style="{ width: `${header[1]}%` }"
+                      @dblclick="enableEditing(item, header)"
+                      :id="`original-table-data-${itemIndex}-${index}`"
                     >
+                      <input
+                        v-if="item.editing && item.editingField === header"
+                        v-model="item[header.toLowerCase()]"
+                        @blur="disableEditing(item)"
+                        @keydown.enter.prevent="disableEditing(item)"
+                        ref="editableInput"
+                      />
                       <!-- Add the drag handle with the 'drag-handle' class -->
                       <i
                         v-if="header === tableHeaders[0]"
@@ -142,7 +152,7 @@
                         id="tableheader"
                         v-for="header in editTableHeaders"
                         :key="header"
-                        :style="{ width: `5px` }"
+                        :style="{ width: `52.9rem` }"
                         @click="sortHeadersClick(header)"
                         v-if="
                           checkedHeaders.includes(header) && tableInEditMode
@@ -747,6 +757,25 @@ export default {
     },
   },
   methods: {
+    enableEditing(item, header, elementId) {
+      this.$set(item, "editing", true);
+      this.$set(item, "editingField", header);
+      this.$nextTick(() => {
+        this.$refs.editableInput[0].focus();
+      });
+      this.hideOriginalData(elementId);
+    },
+    disableEditing(item) {
+      this.$set(item, "editing", false);
+      this.$set(item, "editingField", null);
+    },
+    hideOriginalData(elementId) {
+      let data = document.getElementById(elementId);
+      if (data) {
+        data.style.display = "none";
+      }
+    },
+
     removeColumn(header) {
       for (let i = 0; i < this.tableData.length; i++) {
         const item = this.tableData[i];
