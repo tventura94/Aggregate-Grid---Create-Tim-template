@@ -998,12 +998,13 @@ tbody tr:nth-child(even) {
   justify-content: center;
   height: 50px;
   border-top: none;
+
   border-left: none;
   border-bottom: none;
   border-radius: 5px 5px 0 0;
-  box-shadow: 6px 8px 9px 0px rgba(0, 0, 0, 0.15);
-  -webkit-box-shadow: 6px 8px 9px 0px rgba(0, 0, 0, 0.15);
-  -moz-box-shadow: 6px 8px 9px 0px rgba(0, 0, 0, 0.15);
+  box-shadow: 6px -1px 9px 0px rgba(0, 0, 0, 0.17);
+  -webkit-box-shadow: 6px -1px 9px 0px rgba(0, 0, 0, 0.17);
+  -moz-box-shadow: 6px -1px 9px 0px rgba(0, 0, 0, 0.17);
 }
 .custom-table .subHeader {
   justify-content: center;
