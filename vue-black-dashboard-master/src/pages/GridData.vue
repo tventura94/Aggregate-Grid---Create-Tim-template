@@ -1338,5 +1338,6 @@ input[type="checkbox"]:focus {
 }
 .flexEnd:hover {
   color: #6aae8c;
+  cursor: pointer;
 }
 </style>
