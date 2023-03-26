@@ -20,15 +20,22 @@
                   :style="{ width: `${tableWidth}px` }"
                   @change="updateTableHeaders"
                 >
-                  <th
-                    class="handle upperHeader"
-                    v-for="header in upperTableHeaders"
-                    :key="header[0]"
-                    :style="{ width: `${header[1]}%` }"
-                    v-if="checkedUpperHeaders.includes(header[0])"
+                  <transition-group
+                    tag="thead"
+                    type="transition"
+                    :name="!drag ? 'flip-list' : null"
+                    class="upperTableWidth"
                   >
-                    {{ header[0] }}
-                  </th>
+                    <th
+                      class="handle upperHeader"
+                      v-for="header in upperTableHeaders"
+                      :key="header[0]"
+                      :style="{ width: `${header[1]}%` }"
+                      v-if="checkedUpperHeaders.includes(header[0])"
+                    >
+                      {{ header[0] }}
+                    </th>
+                  </transition-group>
                 </draggable>
               </tr>
               <tr>
@@ -1042,6 +1049,10 @@ tbody tr:nth-child(even) {
   box-shadow: 6px -1px 9px 0px rgba(0, 0, 0, 0.17);
   -webkit-box-shadow: 6px -1px 9px 0px rgba(0, 0, 0, 0.17);
   -moz-box-shadow: 6px -1px 9px 0px rgba(0, 0, 0, 0.17);
+}
+.upperTableWidth {
+  display: flex;
+  width: 100%;
 }
 .custom-table .subHeader {
   justify-content: center;
