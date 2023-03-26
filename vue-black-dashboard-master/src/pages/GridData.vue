@@ -36,29 +36,37 @@
                   v-model="tableHeaders"
                   :options="{ handle: '.handle' }"
                 >
-                  <th
-                    class="handle subHeader"
-                    id="tableheader"
-                    v-for="header in tableHeaders"
-                    :key="header"
-                    @click="sortHeadersClick(header)"
-                    v-if="checkedHeaders.includes(header) && !tableInEditMode"
+                  <transition-group
+                    tag="thead"
+                    type="transition"
+                    :name="!drag ? 'flip-list' : null"
                   >
-                    {{ header }}
+                    <th
+                      class="handle subHeader"
+                      id="tableheader"
+                      v-for="header in tableHeaders"
+                      :key="header"
+                      @click="sortHeadersClick(header)"
+                      v-if="checkedHeaders.includes(header) && !tableInEditMode"
+                    >
+                      {{ header }}
 
-                    <input
-                      class="search-input"
-                      v-model="searchQuery[header]"
-                      type="text"
-                      @click.stop
-                    />
-                    <transition name="fade">
-                      <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
-                    </transition>
-                    <transition name="fade">
-                      <span v-if="sortOrder[header] === 'desc'">&#x25BC;</span>
-                    </transition>
-                  </th>
+                      <input
+                        class="search-input"
+                        v-model="searchQuery[header]"
+                        type="text"
+                        @click.stop
+                      />
+                      <transition name="fade">
+                        <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
+                      </transition>
+                      <transition name="fade">
+                        <span v-if="sortOrder[header] === 'desc'"
+                          >&#x25BC;</span
+                        >
+                      </transition>
+                    </th>
+                  </transition-group>
                 </draggable>
               </tr>
             </thead>
