@@ -128,31 +128,6 @@
 
             <div class="editModeTable" v-if="tableInEditMode">
               <thead>
-                <tr>
-                  <draggable
-                    class="upperTable"
-                    v-model="upperEditTableHeaders"
-                    :options="{ handle: '.handle', ...dragOptions }"
-                    :style="{ width: `${tableWidth}px` }"
-                    @change="updateEditTableHeaders"
-                    :group="{ name: 'upperTableHeadersGroup' }"
-                    @add="onAddHeader"
-                  >
-                    <th
-                      class="handle upperHeader"
-                      v-for="header in upperEditTableHeaders"
-                      :key="header[0]"
-                      :style="{ width: `${header[1]}%` }"
-                      v-if="
-                        checkedUpperHeaders.includes(
-                          header[0] || tableInEditMode
-                        )
-                      "
-                    >
-                      {{ header[0] }}
-                    </th>
-                  </draggable>
-                </tr>
                 <tr class="secondrow">
                   <div class="header-container">
                     <draggable
@@ -174,7 +149,7 @@
                         "
                         v-show="displayHeaders.includes(header)"
                       >
-                        {{ header }}
+                        Grouping by {{ header }}
                         <input
                           class="search-input"
                           v-model="searchQuery[header]"
@@ -207,27 +182,57 @@
                     type="transition"
                     :name="!drag ? 'flip-list' : null"
                   >
-                    <tr
-                      class="table-row flex-table-row"
-                      v-for="item in filteredTableData"
-                      :key="item.id"
-                    >
-                      <td
-                        class="flex-table-cell"
-                        v-for="header in displayHeaders"
-                        :key="header"
-                        v-if="
-                          checkedHeaders.includes(header) && tableInEditMode
-                        "
-                        :style="{ width: `${header[1]}%` }"
+                    <template v-for="(item, index) in filteredTableData">
+                      <tr class="table-row flex-table-row" :key="item.id">
+                        <td
+                          class="flex-table-cell"
+                          v-for="header in displayHeaders"
+                          :key="header"
+                          v-if="
+                            checkedHeaders.includes(header) && tableInEditMode
+                          "
+                          :style="{ width: `${header[1]}%` }"
+                        >
+                          <i
+                            v-if="header === displayHeaders[0]"
+                            class="fas fa-bars handle"
+                          ></i>
+                          {{ item[header.toLowerCase()] }}
+
+                          <button @click="rowDropDownHandler(index)">
+                            &#x25BC;
+                          </button>
+                        </td>
+                      </tr>
+
+                      <!-- DROP DOWN ROWS in Table Edit Mode -->
+                      <tr
+                        class="table-row flex-table-row"
+                        v-if="rowToShow === index"
+                        :key="item.id + '-dropdown'"
                       >
-                        <i
-                          v-if="header === tableHeaders[0]"
-                          class="fas fa-bars handle"
-                        ></i>
-                        {{ item[header.toLowerCase()] }}
-                      </td>
-                    </tr>
+                        <draggable
+                          v-model="editTableHeaders"
+                          :options="{ handle: '.handle' }"
+                          :group="{ name: 'tableHeadersGroup' }"
+                          @add="onAddEditHeader"
+                        >
+                          <td
+                            class="flex-table-cell"
+                            v-for="(header, nestedIndex) in nestedHeaders"
+                            :key="header"
+                            v-if="
+                              checkedHeaders.includes(header) &&
+                              tableInEditMode &&
+                              header !== draggedHeaderData
+                            "
+                            :style="{ width: `${header[1]}%` }"
+                          >
+                            {{ item[header.toLowerCase()] }}
+                          </td>
+                        </draggable>
+                      </tr>
+                    </template>
                   </transition-group>
                 </draggable>
               </tbody>
@@ -321,10 +326,16 @@
 </template>
 <script>
 import draggable from "vuedraggable";
-
 export default {
   data() {
     return {
+      draggedHeader: "",
+      draggedHeaderData: null,
+      nestedHeaders: [],
+      displayHeaders: [],
+      draggedColumnsData: [],
+      rowToShow: null,
+      rowDropDown: false,
       displayHeaders: [],
       upperPivotTableHeaders: [],
       upperEditTableHeaders: [],
@@ -772,6 +783,17 @@ export default {
     },
   },
   methods: {
+    rowDropDownHandler(index) {
+      this.rowToShow = this.rowToShow === index ? null : index;
+      this.rowDropDown = !this.rowDropDown;
+      if (this.rowDropDown) {
+        const rowData = this.filteredTableData[index];
+        this.draggedColumnsData = this.tableHeaders.map((header) => ({
+          header,
+          value: rowData[header.toLowerCase()],
+        }));
+      }
+    },
     enableEditing(item, header, elementId) {
       this.$set(item, "editing", true);
       this.$set(item, "editingField", header);
@@ -797,15 +819,20 @@ export default {
         delete item[header.toLowerCase()];
       }
     },
-    onAddHeader(event) {
-      const header = event.item.innerText.trim();
-      this.toggleColumn(header);
-      this.updateTableHeaders(header);
-      this.removeFromTableHeaders(header);
-      this.removeColumn(header);
-    },
-
     onAddEditHeader(event) {
+      const addedHeader = this.editTableHeaders[event.newIndex];
+      const originalIndex = this.tableHeaders.indexOf(addedHeader);
+
+      if (!this.displayHeaders.includes(addedHeader)) {
+        this.displayHeaders.push(addedHeader);
+        this.nestedHeaders.push(addedHeader); // Add the header to nestedHeaders
+        this.editTableHeaders.splice(event.newIndex, 1);
+        this.tableHeaders.splice(originalIndex, 1);
+      } else {
+        this.editTableHeaders.splice(event.newIndex, 1);
+      }
+    },
+    onAddNestedEditHeader(event) {
       const addedHeader = this.editTableHeaders[event.newIndex];
       const originalIndex = this.tableHeaders.indexOf(addedHeader);
 
@@ -813,6 +840,40 @@ export default {
         this.displayHeaders.push(addedHeader);
         this.editTableHeaders.splice(event.newIndex, 1);
         this.tableHeaders.splice(originalIndex, 1);
+
+        // Add the associated 'td' elements for each row in the table
+        this.tableData.forEach((row) => {
+          row.nestedTdData = row.nestedTdData || {};
+          row.nestedTdData[addedHeader] = row[addedHeader.toLowerCase()];
+        });
+      } else {
+        this.editTableHeaders.splice(event.newIndex, 1);
+      }
+    },
+    onAddEditHeader(event) {
+      const addedHeader = this.editTableHeaders[event.newIndex];
+      const originalIndex = this.tableHeaders.indexOf(addedHeader);
+
+      if (!this.displayHeaders.includes(addedHeader)) {
+        this.displayHeaders.push(addedHeader);
+        this.nestedHeaders.push(addedHeader); // Add the header to nestedHeaders
+        this.draggedHeaderData = addedHeader; // Store the dragged header data
+        this.editTableHeaders.splice(event.newIndex, 1);
+        this.tableHeaders.splice(originalIndex, 1);
+
+        // Check the dragged header
+        if (!this.checkedHeaders.includes(addedHeader)) {
+          this.checkedHeaders.push(addedHeader);
+        }
+        // Check the associated upper header if not already checked
+        const upperHeader = this.upperTableHeaders.find(
+          (upper) =>
+            upper[0] in this.tableHeaderMap &&
+            this.tableHeaderMap[upper[0]].includes(addedHeader)
+        );
+        if (upperHeader && !this.checkedUpperHeaders.includes(upperHeader[0])) {
+          this.checkedUpperHeaders.push(upperHeader[0]);
+        }
       } else {
         this.editTableHeaders.splice(event.newIndex, 1);
       }
@@ -823,17 +884,18 @@ export default {
         this.tableHeaders.splice(index, 1);
       }
     },
-    onDrop(event) {
-      this.droppedValue = event.item.innerText.trim();
-    },
     toggleTableEditMode() {
       this.tableInEditMode = !this.tableInEditMode;
       if (this.tableInEditMode) {
-        // store original checked headers when entering edit mode
+        // Store original checked headers when entering edit mode
         this.originalCheckedHeaders = [...this.checkedHeaders];
         this.originalCheckedUpperHeaders = [...this.checkedUpperHeaders];
+
+        // Clear checkedHeaders and checkedUpperHeaders
+        this.checkedHeaders = [];
+        this.checkedUpperHeaders = [];
       } else {
-        // restore original checked headers when exiting edit mode
+        // Restore original checked headers when exiting edit mode
         this.checkedHeaders = [...this.originalCheckedHeaders];
         this.checkedUpperHeaders = [...this.originalCheckedUpperHeaders];
       }
@@ -954,6 +1016,7 @@ export default {
     this.editTableHeaders = this.tableHeaders.slice();
     this.upperPivotTableHeaders = this.upperTableHeaders.slice();
     this.upperEditTableHeaders = this.upperTableHeaders.slice();
+    this.nestedHeaders = this.tableHeaders.slice();
   },
   components: {
     draggable,
@@ -1339,5 +1402,11 @@ input[type="checkbox"]:focus {
 .flexEnd:hover {
   color: #6aae8c;
   cursor: pointer;
+}
+
+.header-container th {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 </style>

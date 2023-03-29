@@ -9,6 +9,7 @@ make sure countries display flag (OPTIONAL)
 
 get filters to sort through the money slots
 
+make the drop down rows draggable that way you can just drag the data in directly
 
 
 
