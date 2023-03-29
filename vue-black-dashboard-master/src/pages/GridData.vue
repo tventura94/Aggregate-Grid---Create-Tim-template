@@ -207,7 +207,7 @@
 
                       <!-- DROP DOWN ROWS in Table Edit Mode -->
                       <tr
-                        class="table-row flex-table-row"
+                        class="tableEditRow"
                         v-if="rowToShow === index"
                         :key="item.id + '-dropdown'"
                       >
@@ -1025,6 +1025,13 @@ export default {
 </script>
 
 <style>
+.tableEditRow .flex-table-cell {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  align-items: flex-start;
+  justify-content: flex-start; /* Add this line */
+}
 tbody tr:nth-child(even) {
   background-color: #242638;
 }
