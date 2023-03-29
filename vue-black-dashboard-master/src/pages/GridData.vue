@@ -813,43 +813,6 @@ export default {
       }
     },
 
-    removeColumn(header) {
-      for (let i = 0; i < this.tableData.length; i++) {
-        const item = this.tableData[i];
-        delete item[header.toLowerCase()];
-      }
-    },
-    onAddEditHeader(event) {
-      const addedHeader = this.editTableHeaders[event.newIndex];
-      const originalIndex = this.tableHeaders.indexOf(addedHeader);
-
-      if (!this.displayHeaders.includes(addedHeader)) {
-        this.displayHeaders.push(addedHeader);
-        this.nestedHeaders.push(addedHeader); // Add the header to nestedHeaders
-        this.editTableHeaders.splice(event.newIndex, 1);
-        this.tableHeaders.splice(originalIndex, 1);
-      } else {
-        this.editTableHeaders.splice(event.newIndex, 1);
-      }
-    },
-    onAddNestedEditHeader(event) {
-      const addedHeader = this.editTableHeaders[event.newIndex];
-      const originalIndex = this.tableHeaders.indexOf(addedHeader);
-
-      if (!this.displayHeaders.includes(addedHeader)) {
-        this.displayHeaders.push(addedHeader);
-        this.editTableHeaders.splice(event.newIndex, 1);
-        this.tableHeaders.splice(originalIndex, 1);
-
-        // Add the associated 'td' elements for each row in the table
-        this.tableData.forEach((row) => {
-          row.nestedTdData = row.nestedTdData || {};
-          row.nestedTdData[addedHeader] = row[addedHeader.toLowerCase()];
-        });
-      } else {
-        this.editTableHeaders.splice(event.newIndex, 1);
-      }
-    },
     onAddEditHeader(event) {
       const addedHeader = this.editTableHeaders[event.newIndex];
       const originalIndex = this.tableHeaders.indexOf(addedHeader);
@@ -878,12 +841,7 @@ export default {
         this.editTableHeaders.splice(event.newIndex, 1);
       }
     },
-    removeFromTableHeaders(header) {
-      const index = this.tableHeaders.indexOf(header);
-      if (index !== -1) {
-        this.tableHeaders.splice(index, 1);
-      }
-    },
+
     toggleTableEditMode() {
       this.tableInEditMode = !this.tableInEditMode;
       if (this.tableInEditMode) {
@@ -943,20 +901,6 @@ export default {
         })
         .flat();
       this.tableHeaders = newOrder;
-    },
-
-    updateEditTableHeaders() {
-      const newOrder = this.upperEditTableHeaders
-        .filter((header) => this.checkedUpperHeaders.includes(header[0]))
-        .map((header) => {
-          if (header[0] in this.tableHeaderMap) {
-            return this.tableHeaderMap[header[0]];
-          } else {
-            return [header[0]];
-          }
-        })
-        .flat();
-      this.editTableHeaders = newOrder;
     },
 
     sortHeadersClick(header) {
