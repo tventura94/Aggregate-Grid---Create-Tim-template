@@ -812,7 +812,6 @@ export default {
         data.style.display = "none";
       }
     },
-
     onAddEditHeader(event) {
       const addedHeader = this.editTableHeaders[event.newIndex];
       const originalIndex = this.tableHeaders.indexOf(addedHeader);
@@ -837,11 +836,44 @@ export default {
         if (upperHeader && !this.checkedUpperHeaders.includes(upperHeader[0])) {
           this.checkedUpperHeaders.push(upperHeader[0]);
         }
+
+        // Merge rows with the same content in the added column
+        this.mergeRows(addedHeader);
       } else {
         this.editTableHeaders.splice(event.newIndex, 1);
       }
     },
 
+    mergeRows(addedHeader) {
+      const headerKey = addedHeader.toLowerCase();
+      const mergedTableData = this.tableData.reduce((accumulator, row) => {
+        const existingIndex = accumulator.findIndex(
+          (accRow) => accRow[headerKey] === row[headerKey]
+        );
+
+        if (existingIndex > -1) {
+          this.tableHeaders.forEach((header) => {
+            const currentHeaderKey = header.toLowerCase();
+            if (
+              currentHeaderKey !== headerKey &&
+              !accumulator[existingIndex][currentHeaderKey].includes(
+                row[currentHeaderKey]
+              )
+            ) {
+              accumulator[existingIndex][currentHeaderKey] =
+                accumulator[existingIndex][currentHeaderKey] +
+                ", " +
+                row[currentHeaderKey];
+            }
+          });
+        } else {
+          accumulator.push(row);
+        }
+        return accumulator;
+      }, []);
+
+      this.tableData = mergedTableData;
+    },
     toggleTableEditMode() {
       this.tableInEditMode = !this.tableInEditMode;
       if (this.tableInEditMode) {
@@ -856,9 +888,15 @@ export default {
         // Restore original checked headers when exiting edit mode
         this.checkedHeaders = [...this.originalCheckedHeaders];
         this.checkedUpperHeaders = [...this.originalCheckedUpperHeaders];
+
+        // Restore original table data when exiting edit mode
+        this.restoreOriginalTableData();
       }
     },
 
+    restoreOriginalTableData() {
+      this.tableData = JSON.parse(JSON.stringify(this.originalTableData));
+    },
     toggleColumn(header) {
       const index = this.checkedHeaders.indexOf(header);
       if (index === -1) {
