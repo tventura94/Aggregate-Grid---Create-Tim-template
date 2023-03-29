@@ -1031,6 +1031,7 @@ export default {
   text-align: left;
   align-items: flex-start;
   justify-content: flex-start; /* Add this line */
+  margin-left: 1.5rem;
 }
 tbody tr:nth-child(even) {
   background-color: #242638;
