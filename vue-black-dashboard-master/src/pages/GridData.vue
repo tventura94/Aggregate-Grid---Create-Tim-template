@@ -56,21 +56,27 @@
                       @click="sortHeadersClick(header)"
                       v-if="checkedHeaders.includes(header) && !tableInEditMode"
                     >
-                      {{ header }}
-                      <transition name="fade">
-                        <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
-                      </transition>
-                      <transition name="fade">
-                        <span v-if="sortOrder[header] === 'desc'"
-                          >&#x25BC;</span
-                        >
-                      </transition>
-                      <input
-                        class="search-input"
-                        v-model="searchQuery[header]"
-                        type="text"
-                        @click.stop
-                      />
+                      <div>
+                        {{ header }}
+                        <transition name="fade">
+                          <span v-if="sortOrder[header] === 'asc'"
+                            >&#x25B2;</span
+                          >
+                        </transition>
+                        <transition name="fade">
+                          <span v-if="sortOrder[header] === 'desc'"
+                            >&#x25BC;</span
+                          >
+                        </transition>
+                      </div>
+                      <div>
+                        <input
+                          class="search-input"
+                          v-model="searchQuery[header]"
+                          type="text"
+                          @click.stop
+                        />
+                      </div>
                     </th>
                   </transition-group>
                 </draggable>
@@ -92,6 +98,7 @@
                     class="table-row flex-table-row"
                     v-for="item in filteredTableData"
                     :key="item.id"
+                    :options="{ handle: '.handle', ...dragOptions }"
                   >
                     <td
                       id="original-table-data"
@@ -99,7 +106,7 @@
                       v-for="header in tableHeaders"
                       :key="header"
                       v-if="checkedHeaders.includes(header) && !tableInEditMode"
-                      :style="{ width: `${header[1]}%` }"
+                      :style="getAlignment(header)"
                       @dblclick="enableEditing(item, header)"
                     >
                       <input
@@ -340,7 +347,7 @@ export default {
       checkedHeaders: [],
       originalCheckedHeaders: [],
       originalCheckedUpperHeaders: [],
-      tableWidth: ["2116"],
+      tableWidth: ["3316"],
       drag: false,
       upperTableHeaders: [
         ["Participants", 15],
@@ -766,6 +773,32 @@ export default {
     },
   },
   methods: {
+    getAlignment(header) {
+      // Define your alignment logic here
+      if (["Names", "Country", "Game", "Language"].includes(header)) {
+        return { textAlign: "left", paddingRight: "0" };
+      } else if (["Bought", "Rating", "Balance"].includes(header)) {
+        return { textAlign: "center", paddingRight: "10px" };
+      } else if (
+        [
+          "Winnings",
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ].includes(header)
+      ) {
+        return { textAlign: "right", paddingRight: "2rem" }; // Set paddingRight to your desired value
+      }
+    },
     rowDropDownHandler(index) {
       this.rowToShow = this.rowToShow === index ? null : index;
       this.rowDropDown = !this.rowDropDown;
@@ -1025,14 +1058,16 @@ export default {
 .tableEditRow .flex-table-cell:nth-child(n + 8) {
   margin-left: 10.5rem;
 }
-.tableEditRow .flex-table-cell:nth-child(n + 9) {
-  margin-left: 12rem;
-}
-.tableEditRow .flex-table-cell:nth-child(n + 10) {
-  margin-left: 13.5rem;
-}
+
 tbody tr:nth-child(even) {
   background-color: #242638;
+}
+
+.original-table td:hover {
+  color: white;
+}
+.original-table tr:hover {
+  background-color: #2b3043cf;
 }
 .parent {
   border-radius: 5px;
@@ -1084,6 +1119,15 @@ tbody tr:nth-child(even) {
 .table-responsive-no-scroll {
   width: 100vw;
   display: block;
+}
+.th-resizer {
+  display: inline-block;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 .custom-table td,
 .custom-table th {
@@ -1223,7 +1267,7 @@ i {
 }
 
 .flex-table-cell {
-  min-width: 100px;
+  min-width: 8.5vw;
 }
 .handle p {
   visibility: hidden;
@@ -1236,7 +1280,7 @@ td:hover {
   cursor: pointer;
 }
 .search-input {
-  width: 80px;
+  width: 8rem;
   height: 30px;
   margin-top: 2rem;
   margin-bottom: 0.33rem;
