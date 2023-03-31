@@ -126,7 +126,7 @@
 
             <div class="editModeTable" v-if="tableInEditMode">
               <thead>
-                <tr class="secondrow">
+                <tr>
                   <div class="header-container">
                     <draggable
                       v-model="editTableHeaders"
@@ -139,7 +139,7 @@
                         class="handle subHeader"
                         id="tableheader"
                         v-for="header in editTableHeaders"
-                        :style="{ width: `52.9rem` }"
+                        :style="{ width: `${tableWidth}px` }"
                         @click="sortHeadersClick(header)"
                         v-if="
                           checkedHeaders.includes(header) && tableInEditMode
@@ -158,7 +158,7 @@
                           >
                         </transition>
                         <input
-                          class="search-input"
+                          class="search-input-edit"
                           v-model="searchQuery[header]"
                           type="text"
                           @click.stop
@@ -192,7 +192,7 @@
                         >
                           <i
                             v-if="header === displayHeaders[0]"
-                            class="fas fa-bars handle"
+                            class="fas fa-bars handle editHandleBars"
                           ></i>
                           {{ item[header.toLowerCase()] }}
 
@@ -999,7 +999,37 @@ export default {
   text-align: left;
   align-items: flex-start;
   justify-content: flex-start; /* Add this line */
+  margin-left: 13rem;
+}
+.tableEditRow .flex-table-cell:nth-child(even) {
   margin-left: 1.5rem;
+}
+.tableEditRow .flex-table-cell:nth-child(odd) {
+  margin-left: 3rem;
+}
+.tableEditRow .flex-table-cell:first-child {
+  margin-left: 0rem;
+}
+.tableEditRow .flex-table-cell:nth-child(n + 4) {
+  margin-left: 4.5rem;
+}
+.tableEditRow .flex-table-cell:nth-child(n + 5) {
+  margin-left: 6rem;
+}
+.tableEditRow .flex-table-cell:nth-child(n + 6) {
+  margin-left: 7.5rem;
+}
+.tableEditRow .flex-table-cell:nth-child(n + 7) {
+  margin-left: 9rem;
+}
+.tableEditRow .flex-table-cell:nth-child(n + 8) {
+  margin-left: 10.5rem;
+}
+.tableEditRow .flex-table-cell:nth-child(n + 9) {
+  margin-left: 12rem;
+}
+.tableEditRow .flex-table-cell:nth-child(n + 10) {
+  margin-left: 13.5rem;
 }
 tbody tr:nth-child(even) {
   background-color: #242638;
@@ -1221,6 +1251,23 @@ td:hover {
   outline: none;
   border-color: #e44cc4;
 }
+.search-input-edit:focus {
+  outline: none;
+  border-color: #e44cc4;
+}
+
+.search-input-edit {
+  width: 180px;
+  height: 30px;
+  margin-top: 2rem;
+  margin-bottom: 0.33rem;
+  border: 1px solid #2b3553;
+  border-radius: 5px;
+  background-color: #27293d;
+  transition: border-color 0.3s ease-in-out;
+  caret-color: white;
+  color: white;
+}
 
 .upperTable {
   display: flex;
@@ -1383,6 +1430,11 @@ input[type="checkbox"]:focus {
 .header-container th {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  padding-right: 60rem;
+}
+
+.header .editHandleBars {
+  margin-right: 2rem;
+  margin-left: 2rem;
 }
 </style>
