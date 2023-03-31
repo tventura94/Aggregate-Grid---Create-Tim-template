@@ -119,7 +119,7 @@
 
                       <i
                         v-if="header === tableHeaders[0]"
-                        class="fas fa-bars handle"
+                        class="fas fa-bars handle dragHandler"
                       ></i>
 
                       {{ item[header.toLowerCase()] }}
@@ -776,7 +776,7 @@ export default {
     getAlignment(header) {
       // Define your alignment logic here
       if (["Names", "Country", "Game", "Language"].includes(header)) {
-        return { textAlign: "left", paddingRight: "0" };
+        return { textAlign: "left", paddingLeft: "25px" };
       } else if (["Bought", "Rating", "Balance"].includes(header)) {
         return { textAlign: "center", paddingRight: "10px" };
       } else if (
@@ -1071,6 +1071,9 @@ tbody tr:nth-child(even) {
 }
 .parent {
   border-radius: 5px;
+}
+.dragHandler {
+  margin-left: -0.5rem;
 }
 .trows {
   height: 10.3vh;
