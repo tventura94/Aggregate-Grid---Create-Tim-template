@@ -288,7 +288,9 @@
                 :class="{ active: tableInEditMode }"
                 class="fas fa-layer-group grid-object"
               ></i>
-              <th>Group Mode</th>
+              <th>
+                {{ tableInEditMode ? "Return to table" : " Group Mode" }}
+              </th>
             </div>
           </div>
           <div class="dragable" v-if="!tableInEditMode">
