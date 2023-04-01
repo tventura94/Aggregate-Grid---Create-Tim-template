@@ -7,13 +7,8 @@ adding a filter to the table
 make sure countries display flag (OPTIONAL)
 
 
-get filters to sort through the money slots
-
-make the drop down rows draggable that way you can just drag the data in directly
-
-
-
-
+make inability to check boxes in upperTableHeaders when in pivot-mode,
+make unable to chekc boxes UNTIL a header is dragged
 
 
 
