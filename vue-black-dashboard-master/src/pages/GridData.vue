@@ -877,41 +877,39 @@ export default {
         data.style.display = "none";
       }
     },
-
     onAddEditHeader(event) {
+      if (this.displayHeaders.length > 0) {
+        return;
+      }
+
       this.errorMessage = null;
       this.dragged = true;
       const addedHeader = this.editTableHeaders[event.newIndex];
       const originalIndex = this.tableHeaders.indexOf(addedHeader);
 
-      if (!this.displayHeaders.includes(addedHeader)) {
-        this.displayHeaders.push(addedHeader);
-        this.nestedHeaders.push(addedHeader); // Add the header to nestedHeaders
-        this.draggedHeaderData = addedHeader; // Store the dragged header data
-        this.editTableHeaders.splice(event.newIndex, 1);
-        this.tableHeaders.splice(originalIndex, 1);
-
-        // Check the dragged header
-        if (!this.checkedHeaders.includes(addedHeader)) {
-          this.checkedHeaders.push(addedHeader);
-        }
-        // Check the associated upper header if not already checked
-        const upperHeader = this.upperTableHeaders.find(
-          (upper) =>
-            upper[0] in this.tableHeaderMap &&
-            this.tableHeaderMap[upper[0]].includes(addedHeader)
-        );
-        if (upperHeader && !this.checkedUpperHeaders.includes(upperHeader[0])) {
-          this.checkedUpperHeaders.push(upperHeader[0]);
-        }
-
-        // Merge rows with the same content in the added column
-        this.mergeRows(addedHeader);
-      } else {
-        this.editTableHeaders.splice(event.newIndex, 1);
+      this.displayHeaders.push(addedHeader);
+      this.nestedHeaders.push(addedHeader);
+      this.draggedHeaderData = addedHeader;
+      this.editTableHeaders.splice(event.newIndex, 1);
+      this.tableHeaders.splice(originalIndex, 1);
+      console.log(this.editTableHeaders);
+      // Check the dragged header
+      if (!this.checkedHeaders.includes(addedHeader)) {
+        this.checkedHeaders.push(addedHeader);
       }
-    },
+      // Check the associated upper header if not already checked
+      const upperHeader = this.upperTableHeaders.find(
+        (upper) =>
+          upper[0] in this.tableHeaderMap &&
+          this.tableHeaderMap[upper[0]].includes(addedHeader)
+      );
+      if (upperHeader && !this.checkedUpperHeaders.includes(upperHeader[0])) {
+        this.checkedUpperHeaders.push(upperHeader[0]);
+      }
 
+      // Merge rows with the same content in the added column
+      this.mergeRows(addedHeader);
+    },
     mergeRows(addedHeader) {
       const headerKey = addedHeader.toLowerCase();
       const mergedTableData = this.tableData.reduce((accumulator, row) => {
