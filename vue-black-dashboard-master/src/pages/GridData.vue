@@ -47,16 +47,15 @@
                     tag="thead"
                     type="transition"
                     :name="!drag ? 'flip-list' : null"
-                  >
-                    <th
-                      class="handle subHeader"
+                    ><th
+                      class="handle subHeader th-border"
                       id="tableheader"
                       v-for="header in tableHeaders"
                       :key="header"
                       @click="sortHeadersClick(header)"
                       v-if="checkedHeaders.includes(header) && !tableInEditMode"
                     >
-                      <div>
+                      <div class="original-header-div">
                         {{ header }}
                         <transition name="fade">
                           <span v-if="sortOrder[header] === 'asc'"
@@ -69,7 +68,7 @@
                           >
                         </transition>
                       </div>
-                      <div>
+                      <div class="search-box">
                         <input
                           class="search-input"
                           v-model="searchQuery[header]"
@@ -143,7 +142,7 @@
                       @add="onAddEditHeader"
                     >
                       <th
-                        class="handle subHeader"
+                        class="handle edit-subHeader"
                         id="tableheader"
                         v-for="header in editTableHeaders"
                         :style="{ width: `${tableWidth}px` }"
@@ -337,7 +336,6 @@ export default {
       draggedColumnsData: [],
       rowToShow: null,
       rowDropDown: false,
-      displayHeaders: [],
       upperPivotTableHeaders: [],
       upperEditTableHeaders: [],
       editTableHeaders: [],
@@ -1171,14 +1169,14 @@ tbody tr:nth-child(even) {
   width: 100%;
 }
 .custom-table .subHeader {
-  justify-content: center;
-  align-items: center;
-  align-items: center;
-  justify-content: center;
+  text-align: center;
   border-top: none;
   border-left: none;
 
   padding-top: 1rem;
+}
+.custom-table .subHeader:nth-child(n + 8) {
+  text-align: right;
 }
 .custom-table td {
   padding-top: 1rem;
@@ -1306,7 +1304,7 @@ td:hover {
 .search-input-edit {
   width: 180px;
   height: 30px;
-  margin-top: 2rem;
+  margin-top: 1rem;
   margin-bottom: 0.33rem;
   border: 1px solid #2b3553;
   border-radius: 5px;
@@ -1314,6 +1312,7 @@ td:hover {
   transition: border-color 0.3s ease-in-out;
   caret-color: white;
   color: white;
+  margin-left: 22.5rem;
 }
 
 .upperTable {
@@ -1444,7 +1443,6 @@ input[type="checkbox"]:focus {
   width: 90%;
   margin-left: 8px;
 }
-
 .grid-object {
   font-size: 35px;
 }
@@ -1477,11 +1475,34 @@ input[type="checkbox"]:focus {
 .header-container th {
   display: flex;
   flex-direction: column;
-  padding-right: 60rem;
+  padding-right: 150rem;
 }
 
 .header .editHandleBars {
   margin-right: 2rem;
   margin-left: 2rem;
+}
+.th-border:not(:first-child)::after {
+  content: "";
+  position: absolute;
+  top: 2.8vh;
+  left: -9px;
+  height: 18px;
+  width: 2px;
+  background-color: #686b88;
+  transform: translateY(-50%);
+}
+.original-header-div {
+  padding-right: 8px;
+}
+.th-border:nth-child(n + 9)::after {
+  content: "";
+  position: absolute;
+  top: 2.8vh;
+  left: -9px;
+  height: 30px;
+  width: 2px;
+  background-color: #686b88;
+  transform: translateY(-50%);
 }
 </style>
