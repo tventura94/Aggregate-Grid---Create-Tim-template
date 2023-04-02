@@ -771,15 +771,15 @@ export default {
 .drop-container {
   margin: 0 auto;
   min-height: 70px;
-  min-width: 67.5vw;
-  border: 2px dashed #505d6d;
+  min-width: 67.5vw; /* Adjust the height as needed */
+  border: 2px dashed #505d6d; /* Add a dashed border to indicate it's a drop area */
   color: white;
-  background-color: #292e40;
+  background-color: #292e40; /* Add a background color to make it more visible */
 }
 .placeholder-text {
   text-align: center;
   padding-top: 0.8rem;
-  color: #cfa6d1;
+  color: #d3add5;
   font-style: italic;
 }
 
@@ -901,6 +901,7 @@ tbody tr:nth-child(even) {
   opacity: 0;
   transform: translateY(30px);
 }
+
 .custom-table td,
 .custom-table th {
   transition: all 0.3s ease-in-out;
@@ -1132,7 +1133,6 @@ td:hover {
 .content-container {
   display: flex;
   margin: 0 auto;
-  height: 85vh;
   background-image: linear-gradient(
     315deg,
     hsl(234deg 19% 22%) 20%,
