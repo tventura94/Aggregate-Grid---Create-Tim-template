@@ -141,7 +141,7 @@
             <div class="editModeTable" v-if="tableInEditMode">
               <thead>
                 <tr>
-                  <div class="header-container">
+                  <div>
                     <draggable
                       v-model="editTableHeaders"
                       :options="{ handle: '.handle' }"
@@ -761,6 +761,10 @@ export default {
 </script>
 
 <style>
+.edit-subHeader {
+  display: flex;
+  flex-direction: column;
+}
 .tableEditRow .flex-table-cell {
   display: flex;
   flex-direction: column;
@@ -888,6 +892,7 @@ tbody tr:nth-child(even) {
 .table.custom-table th {
   border-bottom: #676176 1px solid;
   font-weight: 600;
+  border-top: none;
 }
 .table.custom-table td {
   border-top: none;
@@ -1049,7 +1054,9 @@ td:hover {
 .search-input-edit {
   width: 180px;
   height: 30px;
+  margin: 0 auto;
   margin-top: 1rem;
+
   margin-bottom: 0.33rem;
   border: 1px solid #2b3553;
   border-radius: 5px;
@@ -1057,7 +1064,6 @@ td:hover {
   transition: border-color 0.3s ease-in-out;
   caret-color: white;
   color: white;
-  margin-left: 22.5rem;
 }
 
 .upperTable {
