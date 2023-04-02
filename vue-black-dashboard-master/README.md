@@ -7,3 +7,4 @@
 ![Product Gif](https://github.com/creativetimofficial/vue-black-dashboard/blob/live-demo/src/assets/demo/product-gif.gif?raw=true)
 
 
+An prototype aggregate grid I made with the styling of Creative Tims vue template that was inspired by the Ag-grid library
