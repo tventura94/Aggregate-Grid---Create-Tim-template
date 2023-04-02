@@ -412,7 +412,6 @@ export default {
       searchQuery: {},
       sortOrder: {},
       originalTableData: [],
-      tableWidth: ["3316"],
       drag: false,
       upperTableHeaders: [
         ["Participants", 15],
