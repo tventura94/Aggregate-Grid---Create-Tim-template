@@ -147,9 +147,16 @@
                       :options="{ handle: '.handle' }"
                       :group="{ name: 'tableHeadersGroup' }"
                       @add="onAddEditHeader"
+                      class="drop-container"
                     >
+                      <div
+                        v-if="tableHeaders.length === 20"
+                        class="placeholder-text"
+                      >
+                        Drag and drop headers here
+                      </div>
                       <th
-                        class="handle edit-subHeader"
+                        class="handle edit-subHeader custom-width"
                         id="tableheader"
                         v-for="header in editTableHeaders"
                         @click="sortHeadersClick(header)"
@@ -761,9 +768,25 @@ export default {
 </script>
 
 <style>
+.drop-container {
+  margin: 0 auto;
+  min-height: 70px;
+  min-width: 67.5vw;
+  border: 2px dashed #505d6d;
+  color: white;
+  background-color: #292e40;
+}
+.placeholder-text {
+  text-align: center;
+  padding-top: 0.8rem;
+  color: #cfa6d1;
+  font-style: italic;
+}
+
 .edit-subHeader {
   display: flex;
   flex-direction: column;
+  border-bottom: none;
 }
 .tableEditRow .flex-table-cell {
   display: flex;
