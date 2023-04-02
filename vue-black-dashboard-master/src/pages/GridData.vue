@@ -17,7 +17,7 @@
                   class="upperTable"
                   v-model="upperTableHeaders"
                   :options="{ handle: '.handle', ...dragOptions }"
-                  :style="{ width: `${tableWidth}px` }"
+                  :style="{ width: `100%` }"
                   @change="updateTableHeaders"
                 >
                   <transition-group
@@ -47,7 +47,8 @@
                     tag="thead"
                     type="transition"
                     :name="!drag ? 'flip-list' : null"
-                    ><th
+                  >
+                    <th
                       class="handle subHeader th-border"
                       id="tableheader"
                       v-for="header in tableHeaders"
@@ -81,7 +82,7 @@
                 </draggable>
               </tr>
             </thead>
-
+            <!--------------------Original table------------------>
             <tbody class="original-table" v-if="!tableInEditMode">
               <draggable
                 class="data-table"
@@ -145,14 +146,12 @@
                       v-model="editTableHeaders"
                       :options="{ handle: '.handle' }"
                       :group="{ name: 'tableHeadersGroup' }"
-                      :style="{ width: `${tableWidth}px` }"
                       @add="onAddEditHeader"
                     >
                       <th
                         class="handle edit-subHeader"
                         id="tableheader"
                         v-for="header in editTableHeaders"
-                        :style="{ width: `${tableWidth}px` }"
                         @click="sortHeadersClick(header)"
                         v-if="
                           checkedHeaders.includes(header) && tableInEditMode
@@ -207,7 +206,15 @@
                             v-if="header === displayHeaders[0]"
                             class="fas fa-bars handle editHandleBars"
                           ></i>
-                          {{ item[header.toLowerCase()] }}
+                          {{
+                            header.toLowerCase() === "bought"
+                              ? item[header.toLowerCase()] === "true"
+                                ? "✔️"
+                                : "✖️"
+                              : header.toLowerCase() === "rating"
+                              ? getStars(item[header.toLowerCase()])
+                              : item[header.toLowerCase()]
+                          }}
 
                           <button @click="rowDropDownHandler(index)">
                             &#x25BC;
@@ -410,8 +417,8 @@ export default {
       upperTableHeaders: [
         ["Participants", 15],
         ["Game of Choice", 10],
-        ["Performance", 15],
-        ["Budget", 60],
+        ["Performance", 10],
+        ["Budget", 65],
       ],
       tableHeaders: [
         "Names",
@@ -438,8 +445,9 @@ export default {
       tableHeaderMap: {
         Participants: ["Names", "Language", "Country"],
         "Game of Choice": ["Game", "Bought"],
-        Performance: ["Balance", "Rating", "Winnings"],
+        Performance: ["Balance", "Rating"],
         Budget: [
+          "Winnings",
           "Jan",
           "Feb",
           "Mar",
@@ -791,14 +799,12 @@ tbody tr:nth-child(even) {
   background-color: #242638;
 }
 
-.original-table td:hover {
-  color: white;
-}
 .original-table tr:hover {
   background-color: #2b3043cf;
 }
 .parent {
   border-radius: 5px;
+  width: 83vw;
 }
 .dragHandler {
   margin-left: -0.5rem;
@@ -860,6 +866,15 @@ tbody tr:nth-child(even) {
   right: 0;
   top: 0;
 }
+.flip-list-enter-active,
+.flip-list-leave-active {
+  transition: transform 0.5s, opacity 0.5s;
+}
+.flip-list-enter,
+.flip-list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
 .custom-table td,
 .custom-table th {
   transition: all 0.3s ease-in-out;
@@ -873,6 +888,7 @@ tbody tr:nth-child(even) {
 }
 .table.custom-table th {
   border-bottom: #676176 1px solid;
+  font-weight: 600;
 }
 .table.custom-table td {
   border-top: none;
