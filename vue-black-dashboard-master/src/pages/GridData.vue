@@ -829,6 +829,13 @@ export default {
     this.upperEditTableHeaders = this.upperTableHeaders.slice();
     this.nestedHeaders = this.tableHeaders.slice();
   },
+  watch: {
+    tableInEditMode(newVal) {
+      if (newVal) {
+        this.filterButtonVisible = false;
+      }
+    },
+  },
   components: {
     draggable,
   },
@@ -1409,7 +1416,7 @@ input[type="checkbox"]:focus {
   position: fixed;
   z-index: 2;
   flex-direction: column;
-  border: 1px rgb(115, 115, 115) solid;
+  border: 1px #676176 solid;
   border-top: none;
   padding: 10px;
   border-bottom-left-radius: 5px;
