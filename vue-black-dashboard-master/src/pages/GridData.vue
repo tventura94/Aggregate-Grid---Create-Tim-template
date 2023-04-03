@@ -570,6 +570,8 @@ export default {
     disableEditing(item) {
       this.$set(item, "editing", false);
       this.$set(item, "editingField", null);
+      sessionStorage.setItem("tableData", JSON.stringify(this.tableData));
+      this.originalTableData = JSON.parse(JSON.stringify(this.tableData));
     },
 
     hideOriginalData(elementId) {
@@ -783,6 +785,15 @@ export default {
   },
   components: {
     draggable,
+  },
+  mounted() {
+    // If there's no saved data in localStorage, use your initial data.
+    if (!localStorage.getItem("tableData")) {
+      localStorage.setItem("tableData", JSON.stringify(this.tableData));
+    } else {
+      // If there's saved data, load it from localStorage and assign it to the component's data.
+      this.tableData = JSON.parse(localStorage.getItem("tableData"));
+    }
   },
 };
 </script>
