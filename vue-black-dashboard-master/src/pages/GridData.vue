@@ -91,7 +91,7 @@
               </tr>
             </thead>
             <div class="open-filter" v-if="filterButtonVisible">
-              <input v-model="searchQuery[header]" type="text" @click.stop />
+              <i class="fa fa-filter filter-btn-icon-open"></i>
             </div>
 
             <!--------------------Original table------------------>
@@ -934,14 +934,20 @@ tbody tr:nth-child(even) {
   height: 0px;
   color: #4b5268;
   transition: color ease-in 0.13s;
-  transition: font-size ease-in 0.05s;
   font-size: 13px;
   padding-left: 10px;
   padding-right: 10px;
 }
 .filter-btn-icon:hover {
-  color: #e44cc4;
-  font-size: 14px;
+  color: #3b9d6d;
+  font-size: 12px;
+}
+
+.filter-btn-icon-open {
+  width: 0px;
+  height: 0px;
+  color: #4b5268;
+  font-size: 13px;
 }
 .table-responsive::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.38);
