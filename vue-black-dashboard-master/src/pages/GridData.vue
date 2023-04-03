@@ -70,18 +70,29 @@
                         </transition>
                       </div>
                       <div class="search-box">
-                        <input
-                          class="search-input"
-                          v-model="searchQuery[header]"
-                          type="text"
-                          @click.stop
-                        />
+                        <div>
+                          <input
+                            class="search-input"
+                            v-model="searchQuery[header]"
+                            type="text"
+                            @click.stop
+                          />
+                        </div>
+                        <div>
+                          <i
+                            @click.stop="openFilterMenu()"
+                            class="fa fa-filter filter-btn-icon"
+                          ></i>
+                        </div>
                       </div>
                     </th>
                   </transition-group>
                 </draggable>
               </tr>
             </thead>
+            <div class="open-filter" v-if="filterButtonVisible">
+              <input v-model="searchQuery[header]" type="text" @click.stop />
+            </div>
 
             <!--------------------Original table------------------>
 
@@ -406,6 +417,7 @@ import jsonData from "../jsonData";
 export default {
   data() {
     return {
+      filterButtonVisible: false,
       infoPopoutVisible: false,
       errorMessage: null,
       dragged: false,
@@ -507,6 +519,9 @@ export default {
     },
   },
   methods: {
+    openFilterMenu() {
+      this.filterButtonVisible = !this.filterButtonVisible;
+    },
     toggleInfoPopout() {
       if (this.tableInEditMode)
         this.infoPopoutVisible = !this.infoPopoutVisible;
@@ -908,6 +923,26 @@ tbody tr:nth-child(even) {
   background-color: 39304e (255, 255, 255, 0.1);
 }
 
+.search-box {
+  display: flex;
+  flex-direction: row;
+}
+.filter-btn-icon {
+  margin-top: 2.5rem;
+  margin-left: 0.5rem;
+  width: 0px;
+  height: 0px;
+  color: #4b5268;
+  transition: color ease-in 0.13s;
+  transition: font-size ease-in 0.05s;
+  font-size: 13px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.filter-btn-icon:hover {
+  color: #e44cc4;
+  font-size: 14px;
+}
 .table-responsive::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.38);
   border-radius: 4px;
@@ -1010,17 +1045,18 @@ tbody tr:nth-child(even) {
   color: rgb(129, 133, 165);
 }
 
+.filter-btn-icon {
+  font-size: smaller;
+}
+
 i {
   margin-right: 0.7rem;
   font-size: larger;
 }
-
 .editicon {
   position: fixed;
   bottom: 83%;
   left: 95%;
-}
-.info-popout {
 }
 .custom-table .handle:active {
   position: relative;
