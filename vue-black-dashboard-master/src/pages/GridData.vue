@@ -80,7 +80,7 @@
                         </div>
                         <div>
                           <i
-                            @click.stop="openFilterMenu(header)"
+                            @click.stop="openFilterMenu(header, $event)"
                             class="fa fa-filter filter-btn-icon"
                           ></i>
                         </div>
@@ -89,29 +89,28 @@
                   </transition-group>
                 </draggable>
               </tr>
-              <div
-                class="open-filter"
-                v-if="filterButtonVisible && selectedHeader"
-              >
-                <i class="fa fa-filter filter-btn-icon-open"></i>
-                <!-- Add search input for filtering unique values -->
-                <input
-                  class="filter-search-input"
-                  v-model="filterSearch"
-                  type="text"
-                  placeholder="Search"
-                />
-                <div v-for="value in uniqueValues" :key="value">
-                  <input
-                    type="checkbox"
-                    :value="value"
-                    v-model="tableData[selectedHeader]"
-                  />
-                  {{ value }}
-                </div>
-              </div>
             </thead>
-
+            <div
+              ref="openFilter"
+              class="open-filter"
+              v-if="filterButtonVisible && selectedHeader"
+            >
+              <!-- Add search input for filtering unique values -->
+              <input
+                class="filter-search-input"
+                v-model="filterSearch"
+                type="text"
+                placeholder="Search"
+              />
+              <div v-for="value in uniqueValues" :key="value">
+                <input
+                  type="checkbox"
+                  :value="value"
+                  v-model="tableData[selectedHeader]"
+                />
+                {{ value }}
+              </div>
+            </div>
             <!--------------------Original table------------------>
 
             <tbody class="original-table" v-if="!tableInEditMode">
@@ -546,9 +545,15 @@ export default {
     },
   },
   methods: {
-    openFilterMenu(header) {
+    openFilterMenu(header, event) {
       this.selectedHeader = header;
       this.filterButtonVisible = !this.filterButtonVisible;
+      if (this.filterButtonVisible) {
+        const box = this.$refs.openFilter;
+        const buttonPosition = event.target.getBoundingClientRect();
+        box.style.left = buttonPosition.left + "px";
+        box.style.top = buttonPosition.bottom + "px";
+      }
     },
     getStars(rating) {
       let stars = "";
@@ -1393,6 +1398,19 @@ input[type="checkbox"]:focus {
 }
 .original-header-div {
   padding-right: 8px;
+}
+
+.open-filter {
+  display: flex;
+  position: fixed;
+  z-index: 2;
+  flex-direction: column;
+  border: 1px rgb(115, 115, 115) solid;
+  border-top: none;
+  padding: 10px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: #242638;
 }
 .th-border:nth-child(n + 9)::after {
   content: "";
