@@ -80,7 +80,7 @@
                         </div>
                         <div>
                           <i
-                            @click.stop="openFilterMenu()"
+                            @click.stop="openFilterMenu(header)"
                             class="fa fa-filter filter-btn-icon"
                           ></i>
                         </div>
@@ -89,10 +89,28 @@
                   </transition-group>
                 </draggable>
               </tr>
+              <div
+                class="open-filter"
+                v-if="filterButtonVisible && selectedHeader"
+              >
+                <i class="fa fa-filter filter-btn-icon-open"></i>
+                <!-- Add search input for filtering unique values -->
+                <input
+                  class="filter-search-input"
+                  v-model="filterSearch"
+                  type="text"
+                  placeholder="Search"
+                />
+                <div v-for="value in uniqueValues" :key="value">
+                  <input
+                    type="checkbox"
+                    :value="value"
+                    v-model="tableData[selectedHeader]"
+                  />
+                  {{ value }}
+                </div>
+              </div>
             </thead>
-            <div class="open-filter" v-if="filterButtonVisible">
-              <i class="fa fa-filter filter-btn-icon-open"></i>
-            </div>
 
             <!--------------------Original table------------------>
 
@@ -417,6 +435,7 @@ import jsonData from "../jsonData";
 export default {
   data() {
     return {
+      selectedHeader: null,
       filterButtonVisible: false,
       infoPopoutVisible: false,
       errorMessage: null,
@@ -517,14 +536,19 @@ export default {
         return true;
       });
     },
+    uniqueValues() {
+      if (!this.selectedHeader) {
+        return [];
+      }
+      const key = this.selectedHeader.toLowerCase();
+      const values = this.tableData.map((row) => row[key]);
+      return [...new Set(values)];
+    },
   },
   methods: {
-    openFilterMenu() {
+    openFilterMenu(header) {
+      this.selectedHeader = header;
       this.filterButtonVisible = !this.filterButtonVisible;
-    },
-    toggleInfoPopout() {
-      if (this.tableInEditMode)
-        this.infoPopoutVisible = !this.infoPopoutVisible;
     },
     getStars(rating) {
       let stars = "";
