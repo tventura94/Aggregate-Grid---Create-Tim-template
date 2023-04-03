@@ -399,6 +399,7 @@ import jsonData from "../jsonData";
 export default {
   data() {
     return {
+      infoPopoutVisible: false,
       errorMessage: null,
       dragged: false,
       draggedHeaderData: null,
@@ -499,6 +500,10 @@ export default {
     },
   },
   methods: {
+    toggleInfoPopout() {
+      if (this.tableInEditMode)
+        this.infoPopoutVisible = !this.infoPopoutVisible;
+    },
     getStars(rating) {
       let stars = "";
       const numberOfStars = parseInt(rating);
@@ -830,7 +835,7 @@ tbody tr:nth-child(even) {
 }
 .parent {
   border-radius: 5px;
-  width: 83vw;
+  width: 100%;
 }
 .dragHandler {
   margin-left: -0.5rem;
@@ -978,6 +983,13 @@ i {
   font-size: larger;
 }
 
+.editicon {
+  position: fixed;
+  bottom: 83%;
+  left: 95%;
+}
+.info-popout {
+}
 .custom-table .handle:active {
   position: relative;
   z-index: 0;
