@@ -790,7 +790,10 @@ export default {
 <style>
 .edit-input-cell {
   width: 7.5rem;
+  color: rgb(239, 239, 239);
+  background-color: #27293d;
 }
+
 .drop-container {
   margin: 0 auto;
   min-height: 70px;
