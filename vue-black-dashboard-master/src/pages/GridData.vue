@@ -82,7 +82,9 @@
                 </draggable>
               </tr>
             </thead>
+
             <!--------------------Original table------------------>
+
             <tbody class="original-table" v-if="!tableInEditMode">
               <draggable
                 class="data-table"
@@ -115,21 +117,23 @@
                         @blur="disableEditing(item)"
                         @keydown.enter.prevent="disableEditing(item)"
                         ref="editableInput"
+                        class="edit-input-cell"
                       />
-
-                      <i
-                        v-if="header === tableHeaders[0]"
-                        class="fas fa-bars handle dragHandler"
-                      ></i>
-                      {{
-                        header.toLowerCase() === "bought"
-                          ? item[header.toLowerCase()] === "true"
-                            ? "✔️"
-                            : "✖️"
-                          : header.toLowerCase() === "rating"
-                          ? getStars(item[header.toLowerCase()])
-                          : item[header.toLowerCase()]
-                      }}
+                      <template v-else>
+                        <i
+                          v-if="header === tableHeaders[0]"
+                          class="fas fa-bars handle dragHandler"
+                        ></i>
+                        {{
+                          header.toLowerCase() === "bought"
+                            ? item[header.toLowerCase()] === "true"
+                              ? "✔️"
+                              : "✖️"
+                            : header.toLowerCase() === "rating"
+                            ? getStars(item[header.toLowerCase()])
+                            : item[header.toLowerCase()]
+                        }}
+                      </template>
                     </td>
                   </tr>
                 </transition-group>
@@ -223,7 +227,10 @@
                               : item[header.toLowerCase()]
                           }}
 
-                          <button @click="rowDropDownHandler(index)">
+                          <button
+                            class="sleek-button"
+                            @click="rowDropDownHandler(index)"
+                          >
                             &#x25BC;
                           </button>
                         </td>
@@ -538,6 +545,7 @@ export default {
         return { textAlign: "right", paddingRight: "2rem" };
       }
     },
+
     rowDropDownHandler(index) {
       this.rowToShow = this.rowToShow === index ? null : index;
       this.rowDropDown = !this.rowDropDown;
@@ -549,6 +557,7 @@ export default {
         }));
       }
     },
+
     enableEditing(item, header, elementId) {
       this.$set(item, "editing", true);
       this.$set(item, "editingField", header);
@@ -557,16 +566,19 @@ export default {
       });
       this.hideOriginalData(elementId);
     },
+
     disableEditing(item) {
       this.$set(item, "editing", false);
       this.$set(item, "editingField", null);
     },
+
     hideOriginalData(elementId) {
       let data = document.getElementById(elementId);
       if (data) {
         data.style.display = "none";
       }
     },
+
     onAddEditHeader(event) {
       if (this.displayHeaders.length > 0) {
         return;
@@ -582,7 +594,7 @@ export default {
       this.draggedHeaderData = addedHeader;
       this.editTableHeaders.splice(event.newIndex, 1);
       this.tableHeaders.splice(originalIndex, 1);
-      console.log(this.editTableHeaders);
+
       // Check the dragged header
       if (!this.checkedHeaders.includes(addedHeader)) {
         this.checkedHeaders.push(addedHeader);
@@ -600,6 +612,7 @@ export default {
       // Merge rows with the same content in the added column
       this.mergeRows(addedHeader);
     },
+
     mergeRows(addedHeader) {
       const headerKey = addedHeader.toLowerCase();
       const mergedTableData = this.tableData.reduce((accumulator, row) => {
@@ -630,6 +643,7 @@ export default {
 
       this.tableData = mergedTableData;
     },
+
     toggleTableEditMode() {
       this.tableInEditMode = !this.tableInEditMode;
       if (!this.tableInEditMode && this.draggedHeaderData) {
@@ -663,6 +677,7 @@ export default {
     restoreOriginalTableData() {
       this.tableData = JSON.parse(JSON.stringify(this.originalTableData));
     },
+
     toggleColumn(header) {
       const index = this.checkedHeaders.indexOf(header);
       if (index === -1) {
@@ -773,6 +788,9 @@ export default {
 </script>
 
 <style>
+.edit-input-cell {
+  width: 7.5rem;
+}
 .drop-container {
   margin: 0 auto;
   min-height: 70px;
@@ -1250,6 +1268,21 @@ input[type="checkbox"]:focus {
   margin-right: 0.7rem;
   cursor: default;
 }
+
+.sleek-button {
+  background-color: transparent;
+  border: none;
+  color: #37394f; /* Change this to the desired text color */
+  font-size: 16px;
+  cursor: pointer;
+  outline: none;
+  transition: 0.3s;
+}
+
+.sleek-button:hover {
+  color: #3fac7a;
+}
+
 .flexEnd {
   transition: color ease-in 0.15s;
 }

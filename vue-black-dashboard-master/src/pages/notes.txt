@@ -3,12 +3,8 @@ Making the drag move fluidly.
 adding a filter to the table
 
 
+make element disappear when double clicking the text box
 
-make sure countries display flag (OPTIONAL)
-
-
-make inability to check boxes in upperTableHeaders when in pivot-mode,
-make unable to chekc boxes UNTIL a header is dragged
 
 
 
