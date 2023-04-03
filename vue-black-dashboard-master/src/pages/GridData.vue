@@ -90,27 +90,29 @@
                 </draggable>
               </tr>
             </thead>
-            <div
-              ref="openFilter"
-              class="open-filter"
-              v-if="filterButtonVisible && selectedHeader"
-            >
-              <!-- Add search input for filtering unique values -->
-              <input
-                class="filter-search-input"
-                v-model="filterSearch"
-                type="text"
-                placeholder="Search"
-              />
-              <div v-for="value in uniqueValues" :key="value">
+            <transition name="fade">
+              <div
+                ref="openFilter"
+                class="open-filter"
+                v-if="filterButtonVisible && selectedHeader"
+              >
+                <!-- Add search input for filtering unique values -->
                 <input
-                  type="checkbox"
-                  :value="value"
-                  v-model="tableData[selectedHeader]"
+                  class="filter-search-input"
+                  v-model="filterSearch"
+                  type="text"
+                  placeholder="Search"
                 />
-                {{ value }}
+                <div v-for="value in uniqueValues" :key="value">
+                  <input
+                    type="checkbox"
+                    :value="value"
+                    v-model="tableData[selectedHeader]"
+                  />
+                  {{ value }}
+                </div>
               </div>
-            </div>
+            </transition>
             <!--------------------Original table------------------>
 
             <tbody class="original-table" v-if="!tableInEditMode">
@@ -1399,7 +1401,9 @@ input[type="checkbox"]:focus {
 .original-header-div {
   padding-right: 8px;
 }
-
+.filter-search-input {
+  margin-bottom: 0.3rem;
+}
 .open-filter {
   display: flex;
   position: fixed;
@@ -1412,6 +1416,16 @@ input[type="checkbox"]:focus {
   border-bottom-right-radius: 5px;
   background-color: #242638;
 }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
 .th-border:nth-child(n + 9)::after {
   content: "";
   position: absolute;
