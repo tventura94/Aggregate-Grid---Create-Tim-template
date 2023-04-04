@@ -80,7 +80,7 @@
                         </div>
                         <div>
                           <i
-                            @click.stop="openFilterMenu(header, $event)"
+                            @click.stop="openFilterMenu(header)"
                             class="fa fa-filter filter-btn-icon"
                           ></i>
                         </div>
@@ -96,7 +96,6 @@
                 class="open-filter"
                 v-if="filterButtonVisible && selectedHeader"
               >
-                <!-- Add search input for filtering unique values -->
                 <input
                   class="filter-search-input"
                   v-model="filterSearch"
@@ -107,7 +106,9 @@
                   <input
                     type="checkbox"
                     :value="value"
-                    v-model="tableData[selectedHeader]"
+                    :checked="value"
+                    ref="myCheckbox"
+                    @input="toggleSelectedValues(value)"
                   />
                   {{ value }}
                 </div>
@@ -437,12 +438,15 @@ import jsonData from "../jsonData";
 export default {
   data() {
     return {
+      selectedValues: [],
       selectedHeader: null,
       filterButtonVisible: false,
       infoPopoutVisible: false,
       errorMessage: null,
       dragged: false,
       draggedHeaderData: null,
+      filteredData: [],
+      checkedData: [],
       nestedHeaders: [],
       displayHeaders: [],
       draggedColumnsData: [],
@@ -513,6 +517,11 @@ export default {
     };
   },
   computed: {
+    filteredTableDataEdit() {
+      return this.tableData.filter((row) =>
+        this.selectedValues.includes(row.game)
+      );
+    },
     shouldDisableCheckboxes() {
       return this.tableInEditMode && !this.dragged;
     },
@@ -522,9 +531,12 @@ export default {
         ghostClass: "ghost",
       };
     },
+
     filteredTableData() {
       const searchKeys = Object.keys(this.searchQuery);
+
       return this.tableData.filter((item) => {
+        // Search functionality
         for (let i = 0; i < searchKeys.length; i++) {
           const key = searchKeys[i];
           if (
@@ -535,7 +547,15 @@ export default {
             return false;
           }
         }
-        return true;
+
+        // Filter functionality
+        if (this.selectedValues.length === 0) {
+          return true;
+        } else {
+          return !this.selectedValues.includes(
+            item[this.selectedHeader.toLowerCase()]
+          );
+        }
       });
     },
     uniqueValues() {
@@ -548,15 +568,18 @@ export default {
     },
   },
   methods: {
-    openFilterMenu(header, event) {
+    toggleSelectedValues(value) {
+      if (this.selectedValues.includes(value)) {
+        this.selectedValues = this.selectedValues.filter(
+          (selectedValue) => selectedValue !== value
+        );
+      } else {
+        this.selectedValues.push(value);
+      }
+    },
+    openFilterMenu(header) {
       this.selectedHeader = header;
       this.filterButtonVisible = !this.filterButtonVisible;
-      if (this.filterButtonVisible) {
-        const box = this.$refs.openFilter;
-        const buttonPosition = event.target.getBoundingClientRect();
-        box.style.left = buttonPosition.left + "px";
-        box.style.top = buttonPosition.bottom + "px";
-      }
     },
     getStars(rating) {
       let stars = "";
@@ -735,6 +758,21 @@ export default {
         this.checkedHeaders.splice(index, 1);
       }
     },
+    toggleData(value) {
+      const index = this.selectedValues.indexOf(value);
+      if (index === -1) {
+        this.selectedValues.push(value);
+      } else {
+        this.selectedValues.splice(index, 1);
+      }
+    },
+
+    filterData() {
+      // Filter tableData based on checkedData and update filteredData
+      this.filteredData = this.tableData.filter((row) =>
+        this.checkedData.every((header) => row[header] === true)
+      );
+    },
 
     toggleUpperColumn(header) {
       const index = this.checkedUpperHeaders.indexOf(header);
@@ -829,6 +867,7 @@ export default {
     this.upperPivotTableHeaders = this.upperTableHeaders.slice();
     this.upperEditTableHeaders = this.upperTableHeaders.slice();
     this.nestedHeaders = this.tableHeaders.slice();
+    this.filteredData = this.tableData.slice();
   },
   watch: {
     tableInEditMode(newVal) {
@@ -839,15 +878,6 @@ export default {
   },
   components: {
     draggable,
-  },
-  mounted() {
-    // If there's no saved data in localStorage, use your initial data.
-    if (!localStorage.getItem("tableData")) {
-      localStorage.setItem("tableData", JSON.stringify(this.tableData));
-    } else {
-      // If there's saved data, load it from localStorage and assign it to the component's data.
-      this.tableData = JSON.parse(localStorage.getItem("tableData"));
-    }
   },
 };
 </script>
