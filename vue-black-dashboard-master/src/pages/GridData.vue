@@ -1170,7 +1170,7 @@ i {
   min-width: 8.5vw;
 }
 
-.flex-table-cell:focus {
+.flex-table-cell:nth-child(n + 2):focus {
   border: 1px solid #e642d8a9;
 }
 .handle p {
