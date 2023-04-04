@@ -95,12 +95,14 @@
                 ref="openFilter"
                 class="open-filter"
                 v-if="filterButtonVisible && selectedHeader"
+                v-for="header in tableHeaders"
               >
                 <input
                   class="filter-search-input"
-                  v-model="filterSearch"
+                  v-model="searchQuery[header]"
                   type="text"
-                  placeholder="Search"
+                  @click.stop
+                  placeholder="Search..."
                 />
                 <div v-for="value in uniqueValues" :key="value">
                   <input
