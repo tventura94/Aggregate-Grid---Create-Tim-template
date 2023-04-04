@@ -97,6 +97,10 @@
                 v-if="filterButtonVisible && selectedHeader"
                 v-for="header in tableHeaders"
               >
+                <i
+                  @click.stop="openFilterMenu(header)"
+                  class="fa fa-times second-filter-btn"
+                ></i>
                 <input
                   class="filter-search-input"
                   v-model="searchQuery[header]"
@@ -104,13 +108,19 @@
                   @click.stop
                   placeholder="Search..."
                 />
-                <div v-for="value in uniqueValues" :key="value">
+
+                <div
+                  class="side-checkbox"
+                  v-for="value in uniqueValues"
+                  :key="value"
+                >
                   <input
                     type="checkbox"
                     :value="value"
                     :checked="value"
                     ref="myCheckbox"
                     @input="toggleSelectedValues(value)"
+                    class="side-checkbox"
                   />
                   {{ value }}
                 </div>
@@ -1122,6 +1132,10 @@ tbody tr:nth-child(even) {
   color: rgb(129, 133, 165);
 }
 
+.side-checkbox:hover {
+  color: white;
+  opacity: 0.5;
+}
 .filter-btn-icon {
   font-size: smaller;
 }
@@ -1303,6 +1317,16 @@ td:hover {
   border-radius: 5px;
 }
 
+.second-filter-btn {
+  text-align: end;
+  padding-bottom: 10px;
+  color: #4b5268;
+  transition: color ease-in 0.13s;
+  font-size: 14px;
+}
+.second-filter-btn:hover {
+  color: #87beebe6;
+}
 .pivot-mode {
   position: relative;
   display: flex;
