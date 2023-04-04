@@ -135,6 +135,7 @@
                     <td
                       id="original-table-data"
                       class="flex-table-cell"
+                      tabindex="0"
                       v-for="header in tableHeaders"
                       :key="header"
                       v-if="checkedHeaders.includes(header) && !tableInEditMode"
@@ -1167,6 +1168,10 @@ i {
 
 .flex-table-cell {
   min-width: 8.5vw;
+}
+
+.flex-table-cell:focus {
+  border: 1px solid #e642d8a9;
 }
 .handle p {
   visibility: hidden;
