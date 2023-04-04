@@ -92,6 +92,7 @@
             </thead>
             <transition name="fade">
               <div
+                v-draggability
                 ref="openFilter"
                 class="open-filter"
                 v-if="filterButtonVisible && selectedHeader"
@@ -1323,6 +1324,7 @@ td:hover {
   color: #4b5268;
   transition: color ease-in 0.13s;
   font-size: 14px;
+  width: 5px;
 }
 .second-filter-btn:hover {
   color: #87beebe6;
@@ -1477,8 +1479,8 @@ input[type="checkbox"]:focus {
   position: fixed;
   z-index: 2;
   flex-direction: column;
-  border: 1px #676176 solid;
-  border-top: none;
+  outline: 1px #676176 solid;
+
   padding: 10px;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
