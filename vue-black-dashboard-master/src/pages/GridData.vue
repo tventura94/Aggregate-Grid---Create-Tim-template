@@ -16,7 +16,13 @@
                 <draggable
                   class="upperTable"
                   v-model="upperTableHeaders"
-                  :options="{ handle: '.handle', ...dragOptions }"
+                  :options="{
+                    handle: '.handle',
+                    onMove: onMoveDrag,
+                    onStart: onStartDrag,
+                    onEnd: onEndDrag,
+                    ...dragOptions,
+                  }"
                   :style="{ width: `100%` }"
                   @change="updateTableHeaders"
                 >
@@ -41,7 +47,13 @@
               <tr>
                 <draggable
                   v-model="tableHeaders"
-                  :options="{ handle: '.handle' }"
+                  :options="{
+                    handle: '.handle',
+                    onMove: onMoveDrag,
+                    onStart: onStartDrag,
+                    onEnd: onEndDrag,
+                    ...dragOptions,
+                  }"
                 >
                   <transition-group
                     tag="thead"
@@ -95,7 +107,7 @@
                 v-draggability
                 ref="openFilter"
                 class="open-filter"
-                v-if="filterButtonVisible && selectedHeader"
+                v-if="filterButtonVisible && header === selectedHeader"
                 v-for="header in tableHeaders"
               >
                 <i
@@ -452,7 +464,7 @@ export default {
   data() {
     return {
       selectedValues: [],
-      selectedHeader: null,
+      selectedHeader: "",
       filterButtonVisible: false,
       infoPopoutVisible: false,
       errorMessage: null,
@@ -581,6 +593,22 @@ export default {
     },
   },
   methods: {
+    onStartDrag(event) {
+      const draggedElement = event.item;
+      const parentRow = draggedElement.closest("tr");
+      const rowRect = parentRow.getBoundingClientRect();
+
+      draggedElement.style.position = "absolute";
+      draggedElement.style.top = `${rowRect.top}px`;
+      draggedElement.style.width = `${
+        draggedElement.getBoundingClientRect().width
+      }px`;
+    },
+    onEndDrag(event) {
+      event.item.style.position = "";
+      event.item.style.top = "";
+      event.item.style.width = "";
+    },
     toggleSelectedValues(value) {
       if (this.selectedValues.includes(value)) {
         this.selectedValues = this.selectedValues.filter(
@@ -591,7 +619,7 @@ export default {
       }
     },
     openFilterMenu(header) {
-      this.selectedHeader = header;
+      this.$set(this, "selectedHeader", header);
       this.filterButtonVisible = !this.filterButtonVisible;
     },
     getStars(rating) {
@@ -1489,6 +1517,9 @@ input[type="checkbox"]:focus {
   box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
   -webkit-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
   -moz-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
+}
+.open-filter:active {
+  cursor: grabbing;
 }
 .fade-enter-active,
 .fade-leave-active {
