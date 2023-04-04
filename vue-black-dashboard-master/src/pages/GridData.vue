@@ -869,7 +869,7 @@ export default {
 .placeholder-text {
   text-align: center;
   padding-top: 0.8rem;
-  color: #d3add5;
+  color: #b1a5c4;
   font-style: italic;
 }
 
@@ -1421,7 +1421,11 @@ input[type="checkbox"]:focus {
   padding: 10px;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
-  background-color: #242638;
+  background-color: #27293d;
+
+  box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
+  -webkit-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
+  -moz-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
 }
 .fade-enter-active,
 .fade-leave-active {
