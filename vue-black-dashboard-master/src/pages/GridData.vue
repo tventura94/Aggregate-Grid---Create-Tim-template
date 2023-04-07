@@ -154,7 +154,7 @@
                 >
                   <tr
                     class="table-row flex-table-row"
-                    v-for="item in filteredTableData"
+                    v-for="item in currentPageData"
                     :key="item.id"
                     :options="{ handle: '.handle', ...dragOptions }"
                   >
@@ -196,6 +196,18 @@
                 </transition-group>
               </draggable>
             </tbody>
+            <div class="pagination">
+              <button @click="goToPreviousPage" :disabled="currentPage === 1">
+                &laquo; Previous
+              </button>
+              <span>{{ currentPage }} / {{ totalPages }}</span>
+              <button
+                @click="goToNextPage"
+                :disabled="currentPage === totalPages"
+              >
+                Next &raquo;
+              </button>
+            </div>
 
             <!-- TABLE EDIT MODE -->
 
@@ -460,10 +472,13 @@
 <script>
 import draggable from "vuedraggable";
 import jsonData from "../jsonData";
+
 export default {
   data() {
     return {
       selectedValues: [],
+      currentPage: 1,
+      itemsPerPage: 20,
       selectedHeader: "",
       filterButtonVisible: false,
       infoPopoutVisible: false,
@@ -477,8 +492,6 @@ export default {
       draggedColumnsData: [],
       rowToShow: null,
       rowDropDown: false,
-      upperPivotTableHeaders: [],
-      pivotTableHeaders: [],
       upperEditTableHeaders: [],
       editTableHeaders: [],
       tableInEditMode: false,
@@ -542,6 +555,15 @@ export default {
     };
   },
   computed: {
+    totalPages() {
+      return Math.ceil(this.filteredTableData.length / this.itemsPerPage);
+    },
+    currentPageData() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredTableData.slice(start, end);
+    },
+
     filteredTableDataEdit() {
       return this.tableData.filter((row) =>
         this.selectedValues.includes(row.game)
@@ -593,6 +615,16 @@ export default {
     },
   },
   methods: {
+    goToPreviousPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+      }
+    },
+    goToNextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
     onStartDrag(event) {
       const draggedElement = event.item;
       const parentRow = draggedElement.closest("tr");
@@ -903,9 +935,7 @@ export default {
     this.checkedUpperHeaders = this.upperTableHeaders.map(
       (header) => header[0]
     );
-    this.pivotTableHeaders = this.tableHeaders.slice();
     this.editTableHeaders = this.tableHeaders.slice();
-    this.upperPivotTableHeaders = this.upperTableHeaders.slice();
     this.upperEditTableHeaders = this.upperTableHeaders.slice();
     this.nestedHeaders = this.tableHeaders.slice();
     this.filteredData = this.tableData.slice();
@@ -992,7 +1022,7 @@ tbody tr:nth-child(even) {
 }
 .parent {
   border-radius: 5px;
-  width: 100%;
+  width: 83vw;
 }
 .dragHandler {
   margin-left: -0.5rem;
@@ -1358,7 +1388,6 @@ td:hover {
   color: #87beebe6;
 }
 .pivot-mode {
-  position: relative;
   display: flex;
   flex-direction: row;
   justify-content: center;
