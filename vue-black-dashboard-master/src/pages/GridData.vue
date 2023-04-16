@@ -196,7 +196,7 @@
                 </transition-group>
               </draggable>
             </tbody>
-            <div class="pagination">
+            <div class="pagination" v-if="!tableInEditMode">
               <button @click="goToPreviousPage" :disabled="currentPage === 1">
                 &laquo; Previous
               </button>
@@ -471,8 +471,7 @@
 </template>
 <script>
 import draggable from "vuedraggable";
-import jsonData from "../jsonData";
-
+import jsonDataSmall from "../jsonDataSmall";
 export default {
   data() {
     return {
@@ -551,7 +550,7 @@ export default {
           "Dec",
         ],
       },
-      tableData: jsonData,
+      tableData: jsonDataSmall,
     };
   },
   computed: {
@@ -563,7 +562,6 @@ export default {
       const end = start + this.itemsPerPage;
       return this.filteredTableData.slice(start, end);
     },
-
     filteredTableDataEdit() {
       return this.tableData.filter((row) =>
         this.selectedValues.includes(row.game)
@@ -578,10 +576,8 @@ export default {
         ghostClass: "ghost",
       };
     },
-
     filteredTableData() {
       const searchKeys = Object.keys(this.searchQuery);
-
       return this.tableData.filter((item) => {
         // Search functionality
         for (let i = 0; i < searchKeys.length; i++) {
@@ -594,7 +590,6 @@ export default {
             return false;
           }
         }
-
         // Filter functionality
         if (this.selectedValues.length === 0) {
           return true;
@@ -629,7 +624,6 @@ export default {
       const draggedElement = event.item;
       const parentRow = draggedElement.closest("tr");
       const rowRect = parentRow.getBoundingClientRect();
-
       draggedElement.style.position = "absolute";
       draggedElement.style.top = `${rowRect.top}px`;
       draggedElement.style.width = `${
@@ -662,7 +656,6 @@ export default {
       }
       return stars;
     },
-
     getAlignment(header) {
       if (["Names", "Country", "Game", "Language"].includes(header)) {
         return { textAlign: "left", paddingLeft: "25px" };
@@ -688,7 +681,6 @@ export default {
         return { textAlign: "right", paddingRight: "2rem" };
       }
     },
-
     rowDropDownHandler(index) {
       this.rowToShow = this.rowToShow === index ? null : index;
       this.rowDropDown = !this.rowDropDown;
@@ -700,7 +692,6 @@ export default {
         }));
       }
     },
-
     enableEditing(item, header, elementId) {
       this.$set(item, "editing", true);
       this.$set(item, "editingField", header);
@@ -709,37 +700,31 @@ export default {
       });
       this.hideOriginalData(elementId);
     },
-
     disableEditing(item) {
       this.$set(item, "editing", false);
       this.$set(item, "editingField", null);
       sessionStorage.setItem("tableData", JSON.stringify(this.tableData));
       this.originalTableData = JSON.parse(JSON.stringify(this.tableData));
     },
-
     hideOriginalData(elementId) {
       let data = document.getElementById(elementId);
       if (data) {
         data.style.display = "none";
       }
     },
-
     onAddEditHeader(event) {
       if (this.displayHeaders.length > 0) {
         return;
       }
-
       this.errorMessage = null;
       this.dragged = true;
       const addedHeader = this.editTableHeaders[event.newIndex];
       const originalIndex = this.tableHeaders.indexOf(addedHeader);
-
       this.displayHeaders.push(addedHeader);
       this.nestedHeaders.push(addedHeader);
       this.draggedHeaderData = addedHeader;
       this.editTableHeaders.splice(event.newIndex, 1);
       this.tableHeaders.splice(originalIndex, 1);
-
       // Check the dragged header
       if (!this.checkedHeaders.includes(addedHeader)) {
         this.checkedHeaders.push(addedHeader);
@@ -753,18 +738,15 @@ export default {
       if (upperHeader && !this.checkedUpperHeaders.includes(upperHeader[0])) {
         this.checkedUpperHeaders.push(upperHeader[0]);
       }
-
       // Merge rows with the same content in the added column
       this.mergeRows(addedHeader);
     },
-
     mergeRows(addedHeader) {
       const headerKey = addedHeader.toLowerCase();
       const mergedTableData = this.tableData.reduce((accumulator, row) => {
         const existingIndex = accumulator.findIndex(
           (accRow) => accRow[headerKey] === row[headerKey]
         );
-
         if (existingIndex > -1) {
           this.tableHeaders.forEach((header) => {
             const currentHeaderKey = header.toLowerCase();
@@ -785,10 +767,8 @@ export default {
         }
         return accumulator;
       }, []);
-
       this.tableData = mergedTableData;
     },
-
     toggleTableEditMode() {
       this.tableInEditMode = !this.tableInEditMode;
       if (!this.tableInEditMode && this.draggedHeaderData) {
@@ -799,11 +779,9 @@ export default {
         // Store original checked headers when entering edit mode
         this.originalCheckedHeaders = [...this.checkedHeaders];
         this.originalCheckedUpperHeaders = [...this.checkedUpperHeaders];
-
         // Clear checkedHeaders and checkedUpperHeaders
         this.checkedHeaders = [];
         this.checkedUpperHeaders = [];
-
         // Reset displayHeaders
         this.displayHeaders = [];
       } else {
@@ -811,18 +789,14 @@ export default {
         this.checkedHeaders = [...this.originalCheckedHeaders];
         this.checkedUpperHeaders = [...this.originalCheckedUpperHeaders];
         this.tableHeaders = [...this.checkedHeaders];
-
         // Reset nestedHeaders
         this.nestedHeaders = [...this.originalCheckedHeaders];
-
         this.restoreOriginalTableData();
       }
     },
-
     restoreOriginalTableData() {
       this.tableData = JSON.parse(JSON.stringify(this.originalTableData));
     },
-
     toggleColumn(header) {
       const index = this.checkedHeaders.indexOf(header);
       if (index === -1) {
@@ -839,14 +813,12 @@ export default {
         this.selectedValues.splice(index, 1);
       }
     },
-
     filterData() {
       // Filter tableData based on checkedData and update filteredData
       this.filteredData = this.tableData.filter((row) =>
         this.checkedData.every((header) => row[header] === true)
       );
     },
-
     toggleUpperColumn(header) {
       const index = this.checkedUpperHeaders.indexOf(header);
       if (index === -1) {
@@ -855,19 +827,16 @@ export default {
         this.checkedUpperHeaders.splice(index, 1);
       }
       this.updateTableHeaders();
-
       // adjust width of checked headers
       const totalWidth = this.upperTableHeaders
         .filter((header) => this.checkedUpperHeaders.includes(header[0]))
         .reduce((sum, header) => sum + header[1], 0);
-
       this.upperTableHeaders.forEach((header) => {
         if (this.checkedUpperHeaders.includes(header[0])) {
           header[1] = Math.round((header[1] / totalWidth) * 10000) / 100;
         }
       });
     },
-
     updateTableHeaders() {
       const newOrder = this.upperTableHeaders
         .filter((header) => this.checkedUpperHeaders.includes(header[0]))
@@ -881,7 +850,6 @@ export default {
         .flat();
       this.tableHeaders = newOrder;
     },
-
     sortHeadersClick(header) {
       if (!header) {
         return;
@@ -891,11 +859,9 @@ export default {
       );
       const moneyStringToNumber = (moneyString) =>
         parseFloat(moneyString.replace(/[$,]/g, ""));
-
       const sortRows = (a, b) => {
         const aValue = a[header.toLowerCase()];
         const bValue = b[header.toLowerCase()];
-
         Object.keys(this.sortOrder).forEach((key) => {
           if (key !== header) {
             this.sortOrder[key] = null;
@@ -915,7 +881,6 @@ export default {
         this.sortOrder[header] =
           this.sortOrder[header] === "asc" ? "desc" : null;
       }
-
       if (this.sortOrder[header]) {
         this.tableData.sort((a, b) => {
           const sortResult = sortRows(a, b);
@@ -927,7 +892,6 @@ export default {
       }
     },
   },
-
   created() {
     // make a copy of the original table data
     this.originalTableData = JSON.parse(JSON.stringify(this.tableData));
@@ -959,7 +923,6 @@ export default {
   color: rgb(239, 239, 239);
   background-color: #27293d;
 }
-
 .drop-container {
   margin: 0 auto;
   min-height: 70px;
@@ -974,7 +937,6 @@ export default {
   color: #b1a5c4;
   font-style: italic;
 }
-
 .edit-subHeader {
   display: flex;
   flex-direction: column;
@@ -1012,17 +974,15 @@ export default {
 .tableEditRow .flex-table-cell:nth-child(n + 8) {
   margin-left: 10.5rem;
 }
-
 tbody tr:nth-child(even) {
   background-color: #242638;
 }
-
 .original-table tr:hover {
   background-color: #2b3043cf;
 }
 .parent {
   border-radius: 5px;
-  width: 83vw;
+  width: 100%;
 }
 .dragHandler {
   margin-left: -0.5rem;
@@ -1036,12 +996,10 @@ tbody tr:nth-child(even) {
   border-bottom: 1px solid #415b7b;
   background-color: #2b2d41;
 }
-
 .vertical-header {
   display: flex;
   flex-direction: column;
 }
-
 .swapping {
   transition: all 0.3s ease-in-out;
 }
@@ -1049,20 +1007,17 @@ tbody tr:nth-child(even) {
   height: 85vh;
   width: 68vw;
 }
-
 .table-responsive {
   /* Change the scrollbar width and color for Firefox */
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.4) rgba(138, 33, 33, 0.1);
 }
-
 /* Change the scrollbar width and color for WebKit-based browsers */
 .table-responsive::-webkit-scrollbar {
   width: 10px;
   height: 10px;
   background-color: 39304e (255, 255, 255, 0.1);
 }
-
 .search-box {
   display: flex;
   flex-direction: row;
@@ -1082,7 +1037,6 @@ tbody tr:nth-child(even) {
   color: #3b9d6d;
   font-size: 12px;
 }
-
 .filter-btn-icon-open {
   width: 0px;
   height: 0px;
@@ -1119,7 +1073,6 @@ tbody tr:nth-child(even) {
   opacity: 0;
   transform: translateY(30px);
 }
-
 .custom-table td,
 .custom-table th {
   transition: all 0.3s ease-in-out;
@@ -1139,7 +1092,6 @@ tbody tr:nth-child(even) {
 .table.custom-table td {
   border-top: none;
 }
-
 .custom-table .upperHeader {
   display: flex;
   justify-content: center;
@@ -1148,7 +1100,6 @@ tbody tr:nth-child(even) {
   justify-content: center;
   height: 50px;
   border-top: none;
-
   border-left: none;
   border-bottom: none;
   border-radius: 5px 5px 0 0;
@@ -1164,7 +1115,6 @@ tbody tr:nth-child(even) {
   text-align: center;
   border-top: none;
   border-left: none;
-
   padding-top: 1rem;
 }
 .custom-table .subHeader:nth-child(n + 8) {
@@ -1190,7 +1140,6 @@ tbody tr:nth-child(even) {
   padding-left: 1rem;
   color: rgb(129, 133, 165);
 }
-
 .side-checkbox:hover {
   color: white;
   opacity: 0.5;
@@ -1198,7 +1147,6 @@ tbody tr:nth-child(even) {
 .filter-btn-icon {
   font-size: smaller;
 }
-
 i {
   margin-right: 0.7rem;
   font-size: larger;
@@ -1220,7 +1168,6 @@ i {
   color: #ffffff;
   z-index: 0;
 }
-
 .flex-table-row {
   width: 100vw;
 }
@@ -1250,14 +1197,12 @@ i {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.4) rgba(138, 33, 33, 0.1);
 }
-
 /* Change the scrollbar width and color for WebKit-based browsers */
 .table-container::-webkit-scrollbar {
   width: 10px;
   height: 10px;
   background-color: 39304e (255, 255, 255, 0.1);
 }
-
 .table-container::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.38);
   border-radius: 4px;
@@ -1270,11 +1215,9 @@ i {
   width: 100vw;
   display: block;
 }
-
 .flex-table-cell {
   min-width: 8.5vw;
 }
-
 .flex-table-cell:focus {
   outline: 1px solid #e642d8a9;
 }
@@ -1283,7 +1226,6 @@ i {
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
-
 th:hover,
 td:hover {
   cursor: pointer;
@@ -1308,13 +1250,11 @@ td:hover {
   outline: none;
   border-color: #e44cc4;
 }
-
 .search-input-edit {
   width: 180px;
   height: 30px;
   margin: 0 auto;
   margin-top: 1rem;
-
   margin-bottom: 0.33rem;
   border: 1px solid #2b3553;
   border-radius: 5px;
@@ -1323,7 +1263,6 @@ td:hover {
   caret-color: white;
   color: white;
 }
-
 .upperTable {
   display: flex;
   width: 100vw;
@@ -1331,7 +1270,6 @@ td:hover {
   table-layout: auto;
   border-bottom: none;
 }
-
 .sticky-headers {
   width: 100%;
   box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
@@ -1351,20 +1289,18 @@ td:hover {
   width: 100vw;
   color: #c5d6ce;
 }
-
 .flip-list-move {
   transition: transform 0.5s;
 }
-
 .no-move {
   transition: transform 0s;
 }
-
 .ghost {
   opacity: 0;
   background-color: transparent;
 }
 .content-container {
+  width: 100%;
   display: flex;
   margin: 0 auto;
   background-image: linear-gradient(
@@ -1375,7 +1311,6 @@ td:hover {
   );
   border-radius: 5px;
 }
-
 .second-filter-btn {
   text-align: end;
   padding-bottom: 10px;
@@ -1399,23 +1334,19 @@ td:hover {
   text-align: center;
   z-index: 1;
 }
-
 .pivot-mode th {
   display: flex;
   justify-content: space-between;
   padding-left: 4px;
   border: 1px solid #3c4663;
 }
-
 .pivot-mode th:hover {
   background-color: #37394f;
 }
-
 .editable-headers {
   position: sticky;
   top: 0;
 }
-
 input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
@@ -1428,15 +1359,12 @@ input[type="checkbox"] {
   margin-right: 5px;
   transition: ease-in 0.2s;
 }
-
 input[type="checkbox"]:checked {
   background-color: #525670;
 }
-
 input[type="checkbox"]:hover {
   background-color: #3b9d6d;
 }
-
 input[type="checkbox"]:focus {
   outline: none;
   border: 2px solid #2b2e41;
@@ -1444,7 +1372,6 @@ input[type="checkbox"]:focus {
 .subHeader {
   position: relative;
 }
-
 .subHeader::before,
 .subHeader::after {
   content: "";
@@ -1456,7 +1383,6 @@ input[type="checkbox"]:focus {
   height: 0.1px;
   background-color: #676176;
 }
-
 .subHeader::after {
   width: 90%;
   margin-left: 8px;
@@ -1482,7 +1408,6 @@ input[type="checkbox"]:focus {
   margin-right: 0.7rem;
   cursor: default;
 }
-
 .sleek-button {
   background-color: transparent;
   border: none;
@@ -1492,11 +1417,9 @@ input[type="checkbox"]:focus {
   outline: none;
   transition: 0.3s;
 }
-
 .sleek-button:hover {
   color: #3fac7a;
 }
-
 .flexEnd {
   transition: color ease-in 0.15s;
 }
@@ -1504,13 +1427,11 @@ input[type="checkbox"]:focus {
   color: #6aae8c;
   cursor: pointer;
 }
-
 .header-container th {
   display: flex;
   flex-direction: column;
   padding-right: 150rem;
 }
-
 .header .editHandleBars {
   margin-right: 2rem;
   margin-left: 2rem;
@@ -1537,12 +1458,10 @@ input[type="checkbox"]:focus {
   z-index: 2;
   flex-direction: column;
   outline: 1px #676176 solid;
-
   padding: 10px;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   background-color: #27293d;
-
   box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
   -webkit-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
   -moz-box-shadow: -8px 21px 29px -18px rgba(28, 27, 27, 0.29);
@@ -1554,12 +1473,10 @@ input[type="checkbox"]:focus {
 .fade-leave-active {
   transition: opacity 0.25s ease;
 }
-
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
 }
-
 .th-border:nth-child(n + 9)::after {
   content: "";
   position: absolute;
@@ -1570,12 +1487,10 @@ input[type="checkbox"]:focus {
   background-color: #686b88;
   transform: translateY(-50%);
 }
-
 .shake:active {
   transform-origin: center center;
   animation: shake 0.5s ease-in-out;
 }
-
 @keyframes shake {
   0%,
   100% {
