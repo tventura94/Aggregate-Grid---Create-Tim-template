@@ -9,139 +9,251 @@
           'table-container': tableInEditMode,
         }"
       >
-        <div>
-          <table class="table custom-table">
-            <thead v-if="!tableInEditMode" class="sticky-headers">
-              <tr>
-                <draggable
-                  class="upperTable"
-                  v-model="upperTableHeaders"
-                  :options="{
-                    handle: '.handle',
-                    onMove: onMoveDrag,
-                    onStart: onStartDrag,
-                    onEnd: onEndDrag,
-                    ...dragOptions,
-                  }"
-                  :style="{ width: `100%` }"
-                  @change="updateTableHeaders"
+        <table class="table custom-table">
+          <thead v-if="!tableInEditMode" class="sticky-headers">
+            <tr>
+              <draggable
+                class="upperTable"
+                v-model="upperTableHeaders"
+                :options="{
+                  handle: '.handle',
+                  onMove: onMoveDrag,
+                  onStart: onStartDrag,
+                  onEnd: onEndDrag,
+                  ...dragOptions,
+                }"
+                :style="{ width: `100%` }"
+                @change="updateTableHeaders"
+              >
+                <transition-group
+                  tag="thead"
+                  type="transition"
+                  :name="!drag ? 'flip-list' : null"
+                  class="upperTableWidth"
                 >
-                  <transition-group
-                    tag="thead"
-                    type="transition"
-                    :name="!drag ? 'flip-list' : null"
-                    class="upperTableWidth"
+                  <th
+                    class="handle upperHeader"
+                    v-for="header in upperTableHeaders"
+                    :key="header[0]"
+                    :style="{ width: `${header[1]}%` }"
+                    v-if="checkedUpperHeaders.includes(header[0])"
                   >
-                    <th
-                      class="handle upperHeader"
-                      v-for="header in upperTableHeaders"
-                      :key="header[0]"
-                      :style="{ width: `${header[1]}%` }"
-                      v-if="checkedUpperHeaders.includes(header[0])"
+                    {{ header[0] }}
+                  </th>
+                </transition-group>
+              </draggable>
+            </tr>
+            <tr>
+              <draggable
+                v-model="tableHeaders"
+                :options="{
+                  handle: '.handle',
+                  onMove: onMoveDrag,
+                  onStart: onStartDrag,
+                  onEnd: onEndDrag,
+                  ...dragOptions,
+                }"
+              >
+                <transition-group
+                  tag="thead"
+                  type="transition"
+                  :name="!drag ? 'flip-list' : null"
+                >
+                  <th
+                    class="handle subHeader th-border"
+                    id="tableheader"
+                    v-for="header in tableHeaders"
+                    :key="header"
+                    @click="sortHeadersClick(header)"
+                    v-if="checkedHeaders.includes(header) && !tableInEditMode"
+                  >
+                    <div class="original-header-div">
+                      {{ header }}
+                      <transition name="fade">
+                        <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
+                      </transition>
+                      <transition name="fade">
+                        <span v-if="sortOrder[header] === 'desc'"
+                          >&#x25BC;</span
+                        >
+                      </transition>
+                    </div>
+                    <div class="search-box">
+                      <div>
+                        <input
+                          class="search-input"
+                          v-model="searchQuery[header]"
+                          type="text"
+                          @click.stop
+                        />
+                      </div>
+                      <div>
+                        <i
+                          @click.stop="openFilterMenu(header)"
+                          class="fa fa-filter filter-btn-icon"
+                        ></i>
+                      </div>
+                    </div>
+                  </th>
+                </transition-group>
+              </draggable>
+            </tr>
+          </thead>
+          <transition name="fade">
+            <div
+              v-draggability
+              ref="openFilter"
+              class="open-filter"
+              v-if="filterButtonVisible && header === selectedHeader"
+              v-for="header in tableHeaders"
+            >
+              <i
+                @click.stop="openFilterMenu(header)"
+                class="fa fa-times second-filter-btn"
+              ></i>
+              <input
+                class="filter-search-input"
+                v-model="searchQuery[header]"
+                type="text"
+                @click.stop
+                placeholder="Search..."
+              />
+
+              <div
+                class="side-checkbox"
+                v-for="value in uniqueValues"
+                :key="value"
+              >
+                <input
+                  type="checkbox"
+                  :value="value"
+                  :checked="value"
+                  ref="myCheckbox"
+                  @input="toggleSelectedValues(value)"
+                  class="side-checkbox"
+                />
+                {{ value }}
+              </div>
+            </div>
+          </transition>
+          <!--------------------Original table------------------>
+
+          <tbody class="original-table" v-if="!tableInEditMode">
+            <draggable
+              class="data-table"
+              v-model="tableData"
+              :options="{ handle: '.handle', ...dragOptions }"
+            >
+              <transition-group
+                tag="tbody"
+                type="transition"
+                :name="!drag ? 'flip-list' : null"
+              >
+                <tr
+                  class="table-row flex-table-row"
+                  v-for="item in currentPageData"
+                  :key="item.id"
+                  :options="{ handle: '.handle', ...dragOptions }"
+                >
+                  <td
+                    id="original-table-data"
+                    class="flex-table-cell"
+                    tabindex="0"
+                    v-for="header in tableHeaders"
+                    :key="header"
+                    v-if="checkedHeaders.includes(header) && !tableInEditMode"
+                    :style="getAlignment(header)"
+                    @dblclick="enableEditing(item, header)"
+                  >
+                    <input
+                      v-if="item.editing && item.editingField === header"
+                      v-model="item[header.toLowerCase()]"
+                      @blur="disableEditing(item)"
+                      @keydown.enter.prevent="disableEditing(item)"
+                      ref="editableInput"
+                      class="edit-input-cell"
+                    />
+                    <template v-else>
+                      <i
+                        v-if="header === tableHeaders[0]"
+                        class="fas fa-bars handle dragHandler"
+                      ></i>
+                      {{
+                        header.toLowerCase() === "bought"
+                          ? item[header.toLowerCase()] === "true"
+                            ? "✔️"
+                            : "✖️"
+                          : header.toLowerCase() === "rating"
+                          ? getStars(item[header.toLowerCase()])
+                          : item[header.toLowerCase()]
+                      }}
+                    </template>
+                  </td>
+                </tr>
+              </transition-group>
+            </draggable>
+          </tbody>
+          <div class="pagination" v-if="!tableInEditMode">
+            <button @click="goToPreviousPage" :disabled="currentPage === 1">
+              &laquo; Previous
+            </button>
+            <span>{{ currentPage }} / {{ totalPages }}</span>
+            <button
+              @click="goToNextPage"
+              :disabled="currentPage === totalPages"
+            >
+              Next &raquo;
+            </button>
+          </div>
+
+          <!-- TABLE EDIT MODE -->
+
+          <div class="editModeTable" v-if="tableInEditMode">
+            <thead>
+              <tr>
+                <div>
+                  <draggable
+                    v-model="editTableHeaders"
+                    :options="{ handle: '.handle' }"
+                    :group="{ name: 'tableHeadersGroup' }"
+                    @add="onAddEditHeader"
+                    class="drop-container"
+                  >
+                    <div
+                      v-if="tableHeaders.length === 20"
+                      class="placeholder-text"
                     >
-                      {{ header[0] }}
-                    </th>
-                  </transition-group>
-                </draggable>
-              </tr>
-              <tr>
-                <draggable
-                  v-model="tableHeaders"
-                  :options="{
-                    handle: '.handle',
-                    onMove: onMoveDrag,
-                    onStart: onStartDrag,
-                    onEnd: onEndDrag,
-                    ...dragOptions,
-                  }"
-                >
-                  <transition-group
-                    tag="thead"
-                    type="transition"
-                    :name="!drag ? 'flip-list' : null"
-                  >
+                      Drag and drop headers here
+                    </div>
                     <th
-                      class="handle subHeader th-border"
+                      class="handle edit-subHeader custom-width"
                       id="tableheader"
-                      v-for="header in tableHeaders"
-                      :key="header"
+                      v-for="header in editTableHeaders"
                       @click="sortHeadersClick(header)"
-                      v-if="checkedHeaders.includes(header) && !tableInEditMode"
+                      v-if="checkedHeaders.includes(header) && tableInEditMode"
+                      v-show="displayHeaders.includes(header)"
                     >
-                      <div class="original-header-div">
-                        {{ header }}
-                        <transition name="fade">
-                          <span v-if="sortOrder[header] === 'asc'"
-                            >&#x25B2;</span
-                          >
-                        </transition>
-                        <transition name="fade">
-                          <span v-if="sortOrder[header] === 'desc'"
-                            >&#x25BC;</span
-                          >
-                        </transition>
-                      </div>
-                      <div class="search-box">
-                        <div>
-                          <input
-                            class="search-input"
-                            v-model="searchQuery[header]"
-                            type="text"
-                            @click.stop
-                          />
-                        </div>
-                        <div>
-                          <i
-                            @click.stop="openFilterMenu(header)"
-                            class="fa fa-filter filter-btn-icon"
-                          ></i>
-                        </div>
-                      </div>
+                      Grouping by {{ header }}
+                      <transition name="fade">
+                        <span v-if="sortOrder[header] === 'asc'">&#x25B2;</span>
+                      </transition>
+                      <transition name="fade">
+                        <span v-if="sortOrder[header] === 'desc'"
+                          >&#x25BC;</span
+                        >
+                      </transition>
+                      <input
+                        class="search-input-edit"
+                        v-model="searchQuery[header]"
+                        type="text"
+                        @click.stop
+                      />
                     </th>
-                  </transition-group>
-                </draggable>
+                  </draggable>
+                </div>
               </tr>
             </thead>
-            <transition name="fade">
-              <div
-                v-draggability
-                ref="openFilter"
-                class="open-filter"
-                v-if="filterButtonVisible && header === selectedHeader"
-                v-for="header in tableHeaders"
-              >
-                <i
-                  @click.stop="openFilterMenu(header)"
-                  class="fa fa-times second-filter-btn"
-                ></i>
-                <input
-                  class="filter-search-input"
-                  v-model="searchQuery[header]"
-                  type="text"
-                  @click.stop
-                  placeholder="Search..."
-                />
-
-                <div
-                  class="side-checkbox"
-                  v-for="value in uniqueValues"
-                  :key="value"
-                >
-                  <input
-                    type="checkbox"
-                    :value="value"
-                    :checked="value"
-                    ref="myCheckbox"
-                    @input="toggleSelectedValues(value)"
-                    class="side-checkbox"
-                  />
-                  {{ value }}
-                </div>
-              </div>
-            </transition>
-            <!--------------------Original table------------------>
-
-            <tbody class="original-table" v-if="!tableInEditMode">
+            <tbody>
               <draggable
                 class="data-table"
                 v-model="tableData"
@@ -152,34 +264,20 @@
                   type="transition"
                   :name="!drag ? 'flip-list' : null"
                 >
-                  <tr
-                    class="table-row flex-table-row"
-                    v-for="item in currentPageData"
-                    :key="item.id"
-                    :options="{ handle: '.handle', ...dragOptions }"
-                  >
-                    <td
-                      id="original-table-data"
-                      class="flex-table-cell"
-                      tabindex="0"
-                      v-for="header in tableHeaders"
-                      :key="header"
-                      v-if="checkedHeaders.includes(header) && !tableInEditMode"
-                      :style="getAlignment(header)"
-                      @dblclick="enableEditing(item, header)"
-                    >
-                      <input
-                        v-if="item.editing && item.editingField === header"
-                        v-model="item[header.toLowerCase()]"
-                        @blur="disableEditing(item)"
-                        @keydown.enter.prevent="disableEditing(item)"
-                        ref="editableInput"
-                        class="edit-input-cell"
-                      />
-                      <template v-else>
+                  <template v-for="(item, index) in filteredTableData">
+                    <tr class="table-row flex-table-row" :key="item.id">
+                      <td
+                        class="flex-table-cell"
+                        v-for="header in displayHeaders"
+                        :key="header"
+                        v-if="
+                          checkedHeaders.includes(header) && tableInEditMode
+                        "
+                        :style="{ width: `${header[1]}%` }"
+                      >
                         <i
-                          v-if="header === tableHeaders[0]"
-                          class="fas fa-bars handle dragHandler"
+                          v-if="header === displayHeaders[0]"
+                          class="fas fa-bars handle editHandleBars"
                         ></i>
                         {{
                           header.toLowerCase() === "bought"
@@ -190,155 +288,49 @@
                             ? getStars(item[header.toLowerCase()])
                             : item[header.toLowerCase()]
                         }}
-                      </template>
-                    </td>
-                  </tr>
-                </transition-group>
-              </draggable>
-            </tbody>
-            <div class="pagination" v-if="!tableInEditMode">
-              <button @click="goToPreviousPage" :disabled="currentPage === 1">
-                &laquo; Previous
-              </button>
-              <span>{{ currentPage }} / {{ totalPages }}</span>
-              <button
-                @click="goToNextPage"
-                :disabled="currentPage === totalPages"
-              >
-                Next &raquo;
-              </button>
-            </div>
 
-            <!-- TABLE EDIT MODE -->
+                        <button
+                          class="sleek-button"
+                          @click="rowDropDownHandler(index)"
+                        >
+                          &#x25BC;
+                        </button>
+                      </td>
+                    </tr>
 
-            <div class="editModeTable" v-if="tableInEditMode">
-              <thead>
-                <tr>
-                  <div>
-                    <draggable
-                      v-model="editTableHeaders"
-                      :options="{ handle: '.handle' }"
-                      :group="{ name: 'tableHeadersGroup' }"
-                      @add="onAddEditHeader"
-                      class="drop-container"
+                    <!-- DROP DOWN ROWS in Table Edit Mode -->
+                    <tr
+                      class="tableEditRow"
+                      v-if="rowToShow === index"
+                      :key="item.id + '-dropdown'"
                     >
-                      <div
-                        v-if="tableHeaders.length === 20"
-                        class="placeholder-text"
+                      <draggable
+                        v-model="editTableHeaders"
+                        :options="{ handle: '.handle' }"
+                        :group="{ name: 'tableHeadersGroup' }"
+                        @add="onAddEditHeader"
                       >
-                        Drag and drop headers here
-                      </div>
-                      <th
-                        class="handle edit-subHeader custom-width"
-                        id="tableheader"
-                        v-for="header in editTableHeaders"
-                        @click="sortHeadersClick(header)"
-                        v-if="
-                          checkedHeaders.includes(header) && tableInEditMode
-                        "
-                        v-show="displayHeaders.includes(header)"
-                      >
-                        Grouping by {{ header }}
-                        <transition name="fade">
-                          <span v-if="sortOrder[header] === 'asc'"
-                            >&#x25B2;</span
-                          >
-                        </transition>
-                        <transition name="fade">
-                          <span v-if="sortOrder[header] === 'desc'"
-                            >&#x25BC;</span
-                          >
-                        </transition>
-                        <input
-                          class="search-input-edit"
-                          v-model="searchQuery[header]"
-                          type="text"
-                          @click.stop
-                        />
-                      </th>
-                    </draggable>
-                  </div>
-                </tr>
-              </thead>
-              <tbody>
-                <draggable
-                  class="data-table"
-                  v-model="tableData"
-                  :options="{ handle: '.handle', ...dragOptions }"
-                >
-                  <transition-group
-                    tag="tbody"
-                    type="transition"
-                    :name="!drag ? 'flip-list' : null"
-                  >
-                    <template v-for="(item, index) in filteredTableData">
-                      <tr class="table-row flex-table-row" :key="item.id">
                         <td
                           class="flex-table-cell"
-                          v-for="header in displayHeaders"
+                          v-for="header in nestedHeaders"
                           :key="header"
                           v-if="
-                            checkedHeaders.includes(header) && tableInEditMode
+                            checkedHeaders.includes(header) &&
+                            tableInEditMode &&
+                            header !== draggedHeaderData
                           "
                           :style="{ width: `${header[1]}%` }"
                         >
-                          <i
-                            v-if="header === displayHeaders[0]"
-                            class="fas fa-bars handle editHandleBars"
-                          ></i>
-                          {{
-                            header.toLowerCase() === "bought"
-                              ? item[header.toLowerCase()] === "true"
-                                ? "✔️"
-                                : "✖️"
-                              : header.toLowerCase() === "rating"
-                              ? getStars(item[header.toLowerCase()])
-                              : item[header.toLowerCase()]
-                          }}
-
-                          <button
-                            class="sleek-button"
-                            @click="rowDropDownHandler(index)"
-                          >
-                            &#x25BC;
-                          </button>
+                          {{ item[header.toLowerCase()] }}
                         </td>
-                      </tr>
-
-                      <!-- DROP DOWN ROWS in Table Edit Mode -->
-                      <tr
-                        class="tableEditRow"
-                        v-if="rowToShow === index"
-                        :key="item.id + '-dropdown'"
-                      >
-                        <draggable
-                          v-model="editTableHeaders"
-                          :options="{ handle: '.handle' }"
-                          :group="{ name: 'tableHeadersGroup' }"
-                          @add="onAddEditHeader"
-                        >
-                          <td
-                            class="flex-table-cell"
-                            v-for="header in nestedHeaders"
-                            :key="header"
-                            v-if="
-                              checkedHeaders.includes(header) &&
-                              tableInEditMode &&
-                              header !== draggedHeaderData
-                            "
-                            :style="{ width: `${header[1]}%` }"
-                          >
-                            {{ item[header.toLowerCase()] }}
-                          </td>
-                        </draggable>
-                      </tr>
-                    </template>
-                  </transition-group>
-                </draggable>
-              </tbody>
-            </div>
-          </table>
-        </div>
+                      </draggable>
+                    </tr>
+                  </template>
+                </transition-group>
+              </draggable>
+            </tbody>
+          </div>
+        </table>
       </div>
 
       <!-- GROUP MODE CONTROLLER -->
@@ -983,6 +975,7 @@ tbody tr:nth-child(even) {
 .parent {
   border-radius: 5px;
   width: 100%;
+  height: 100%;
 }
 .dragHandler {
   margin-left: -0.5rem;
@@ -1011,6 +1004,30 @@ tbody tr:nth-child(even) {
   /* Change the scrollbar width and color for Firefox */
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.4) rgba(138, 33, 33, 0.1);
+}
+@media (max-height: 950px) {
+  .table-responsive {
+    /* Change the scrollbar width and color for Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.4) rgba(138, 33, 33, 0.1);
+    height: 120vh;
+  }
+}
+@media (max-height: 652px) {
+  .table-responsive {
+    /* Change the scrollbar width and color for Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.4) rgba(138, 33, 33, 0.1);
+    height: 155vh;
+  }
+}
+@media (max-height: 507px) {
+  .table-responsive {
+    /* Change the scrollbar width and color for Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.4) rgba(138, 33, 33, 0.1);
+    height: 170vh;
+  }
 }
 /* Change the scrollbar width and color for WebKit-based browsers */
 .table-responsive::-webkit-scrollbar {
@@ -1072,6 +1089,11 @@ tbody tr:nth-child(even) {
 .flip-list-leave-to {
   opacity: 0;
   transform: translateY(30px);
+}
+
+.custom-table,
+.table {
+  height: 100%;
 }
 .custom-table td,
 .custom-table th {
@@ -1139,6 +1161,8 @@ tbody tr:nth-child(even) {
   text-align: start;
   padding-left: 1rem;
   color: rgb(129, 133, 165);
+}
+.custom-table {
 }
 .side-checkbox:hover {
   color: white;
@@ -1333,6 +1357,7 @@ td:hover {
   transition: all 0.3s ease-in-out;
   text-align: center;
   z-index: 1;
+  overflow-y: visible;
 }
 .pivot-mode th {
   display: flex;
